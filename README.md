@@ -72,3 +72,20 @@ So their is neo-postman which help you to do an API testing and make your job mo
   }
 }
 ```
+
+### How to run :
+
+1. Run application
+```shell
+make run-docker
+```
+
+2. Run migration
+```shell
+make run-docker-migration
+```
+
+3. Stop application
+```shell
+make stop-docker
+```
