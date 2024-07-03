@@ -1,0 +1,16 @@
+{
+  "method": "POST",
+  "path": "/v1/test/endpoint",
+  "description": "As a user i should bla bla bla",
+  "request_header": {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer jwtToken"
+  },
+  "request_body": {
+    "email": "randysteven12@gmail.com",
+    "password": "test_1234"
+  },
+  "expected_response_code": 201,
+  "expected_response": {
+  }
+}
