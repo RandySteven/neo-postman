@@ -99,14 +99,13 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		}
 
 		if request.ExpectedResponse != nil {
+			resultStatus := enums.Expected
 			for key, value := range request.ExpectedResponse {
 				if testData.ActualResponse[key] != value {
-					testData.ResultStatus = enums.Unexpected
+					resultStatus = enums.Unexpected
 				}
 			}
-			testData.ResultStatus = enums.Expected
-		} else {
-			testData.ResultStatus = enums.Expected
+			testData.ResultStatus = resultStatus
 		}
 
 		if testData.ResultStatus == enums.Expected {
