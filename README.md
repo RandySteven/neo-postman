@@ -14,3 +14,57 @@ So their is neo-postman which help you to do an API testing and make your job mo
 | API Testing      | v                      | v                                     |
 | Assertion result | v (but need put logic) | v (just put the expected result body) |
 | Record           | x                      | v                                     |
+
+### Sample Request:
+
+```json
+{
+  "method": "POST",
+  "path": "/v1/test/endpoint",
+  "description": "As a user i should bla bla bla",
+  "request_header": {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer jwtToken"
+  },
+  "request_body": {
+    "email": "randysteven12@gmail.com",
+    "password": "test_1234"
+  },
+  "expected_response_code": 201,
+  "expected_response": {
+  }
+}
+```
+
+| Field                  | mandatory | Description                                                       |
+|------------------------|-----------|-------------------------------------------------------------------|
+| method                 | M         | Required the HTTP method [POST, GET, PUT, PATCH, DELETE]          |
+| path                   | M         |                                                                   |
+| request_header         | M         | The request header for API                                        |
+| request_body           | O         | Give the request body for the API actually this field is optional |
+| expected_response_code | M         | Expected response code that user/QA need to check                 |
+| expected_response      | O         | Expected response body that user/QA need to check                 |
+
+### Sample Response:
+
+```json
+{
+  "id": 1,
+  "result_status": "Expected"
+}
+```
+
+```json
+{
+  "id": 2,
+  "result_status": "Unexpected",
+  "expected_response_code": 201,
+  "actual_response_code": 200,
+  "expected_response": {
+    "message": "Hello World"
+  },
+  "actual_response": {
+    "message": "Hello world"
+  }
+}
+```
