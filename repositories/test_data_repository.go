@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"go-api-test/entities/models"
 	repositories_interfaces "go-api-test/interfaces/repositories"
 	"go-api-test/queries"
@@ -14,28 +13,20 @@ type testDataRepository struct {
 	db *sql.DB
 }
 
-func jsonString(request map[string]interface{}) (string, error) {
-	bytes, err := json.Marshal(request)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
-}
-
 func (t *testDataRepository) Save(ctx context.Context, request *models.TestData) (result *models.TestData, err error) {
-	requestHeaderStr, err := jsonString(request.RequestHeader)
+	requestHeaderStr, err := utils.JsonString(request.RequestHeader)
 	if err != nil {
 		return nil, err
 	}
-	requestBodyStr, err := jsonString(request.RequestBody)
+	requestBodyStr, err := utils.JsonString(request.RequestBody)
 	if err != nil {
 		return nil, err
 	}
-	expectedResponse, err := jsonString(request.ExpectedResponse)
+	expectedResponse, err := utils.JsonString(request.ExpectedResponse)
 	if err != nil {
 		return nil, err
 	}
-	actualResponse, err := jsonString(request.ActualResponse)
+	actualResponse, err := utils.JsonString(request.ActualResponse)
 	if err != nil {
 		return nil, err
 	}
