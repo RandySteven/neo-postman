@@ -39,7 +39,7 @@ So their is neo-postman which help you to do an API testing and make your job mo
 | Field                  | mandatory | Description                                                       |
 |------------------------|-----------|-------------------------------------------------------------------|
 | method                 | M         | Required the HTTP method [POST, GET, PUT, PATCH, DELETE]          |
-| path                   | M         |                                                                   |
+| path                   | M         | The endpoint of API                                               |
 | request_header         | M         | The request header for API                                        |
 | request_body           | O         | Give the request body for the API actually this field is optional |
 | expected_response_code | M         | Expected response code that user/QA need to check                 |
