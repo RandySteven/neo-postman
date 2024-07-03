@@ -49,22 +49,26 @@ So their is neo-postman which help you to do an API testing and make your job mo
 
 ```json
 {
-  "id": 1,
-  "result_status": "Expected"
+  "message": "success get response",
+  "data": {
+    "test_result": {
+      "id": 12,
+      "result_status": "expected"
+    }
+  }
 }
 ```
 
 ```json
 {
-  "id": 2,
-  "result_status": "Unexpected",
-  "expected_response_code": 201,
-  "actual_response_code": 200,
-  "expected_response": {
-    "message": "Hello World"
-  },
-  "actual_response": {
-    "message": "Hello world"
+  "message": "success get response",
+  "data": {
+    "test_result": {
+      "id": 11,
+      "result_status": "unexpected",
+      "expected_response_code": 201,
+      "actual_response_code": 200
+    }
   }
 }
 ```

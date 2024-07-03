@@ -95,6 +95,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	for testData.ResultStatus != enums.Unexpected {
 		if resp.StatusCode != request.ExpectedResponseCode {
 			testData.ResultStatus = enums.Unexpected
+			break
 		}
 
 		if request.ExpectedResponse != nil {
