@@ -7,3 +7,12 @@ run:
 
 migration:
 	${gorun} ${cmd_folder}migration -config ${yaml_file}
+
+run-docker:
+	docker compose up --build -d
+
+stop-docker:
+	docker compose down
+
+run-docker-migration:
+	docker compose up --build -d neo-post-migration

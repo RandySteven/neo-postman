@@ -1,0 +1,46 @@
+version: "2"
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  neo-post:
+    image: neo-post
+    ports:
+      - 8888:8888
+    build:
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - neo-post-postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postman", "-h", "neo-post-postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  neo-post-postgres:
+    image: postgres:latest
+    container_name: neo-post-postgres
+    restart: unless-stopped
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - app-network
+    environment:
+      - POSTGRES_PASSWORD=mE3xx4xwKQ
+      - POSTGRES_USER=postman
+      - POSTGRES_DB=neo_post
+  neo-post-migration:
+    image: neo-post-migration
+    networks:
+      - app-network
+    depends_on:
+      - neo-post-postgres
+    build:
+      dockerfile: migration.dockerfile
+    profiles:
+      - donotstart

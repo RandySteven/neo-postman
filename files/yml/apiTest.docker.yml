@@ -1,0 +1,15 @@
+server:
+  host: "0.0.0.0"
+  port: "8888"
+  timeout:
+    server: 30
+    read: 15
+    write: 10
+    idle: 5
+
+postgres:
+  host: "neo-post-postgres"
+  port: "5432"
+  dbname: "neo_post"
+  dbuser: "postman"
+  dbpass: "mE3xx4xwKQ"
