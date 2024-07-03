@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
+	"github.com/RandySteven/neo-postman/apps"
+	"github.com/RandySteven/neo-postman/pkg/config"
+	"github.com/RandySteven/neo-postman/pkg/postgres"
 	"github.com/gorilla/mux"
-	"go-api-test/apps"
-	"go-api-test/pkg/config"
-	"go-api-test/pkg/postgres"
 	"log"
 )
 

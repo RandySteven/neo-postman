@@ -1,8 +1,8 @@
 package apps
 
 import (
+	"github.com/RandySteven/neo-postman/enums"
 	"github.com/gorilla/mux"
-	"go-api-test/enums"
 	"log"
 	"net/http"
 )

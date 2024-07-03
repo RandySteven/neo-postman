@@ -1,7 +1,7 @@
 package models
 
 import (
-	"go-api-test/enums"
+	"github.com/RandySteven/neo-postman/enums"
 	"time"
 )
 

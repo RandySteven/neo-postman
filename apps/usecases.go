@@ -1,9 +1,9 @@
 package apps
 
 import (
-	usecases_interfaces "go-api-test/interfaces/usecases"
-	"go-api-test/pkg/postgres"
-	"go-api-test/usecases"
+	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
+	"github.com/RandySteven/neo-postman/pkg/postgres"
+	"github.com/RandySteven/neo-postman/usecases"
 )
 
 type Usecases struct {

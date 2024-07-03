@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"go-api-test/queries"
+	"github.com/RandySteven/neo-postman/queries"
 	"log"
 	"reflect"
 	"strings"

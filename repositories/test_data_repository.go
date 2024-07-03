@@ -3,10 +3,10 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"go-api-test/entities/models"
-	repositories_interfaces "go-api-test/interfaces/repositories"
-	"go-api-test/queries"
-	"go-api-test/utils"
+	"github.com/RandySteven/neo-postman/entities/models"
+	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
+	"github.com/RandySteven/neo-postman/queries"
+	"github.com/RandySteven/neo-postman/utils"
 )
 
 type testDataRepository struct {

@@ -1,9 +1,9 @@
 package apps
 
 import (
-	"go-api-test/handlers"
-	handlers_interfaces "go-api-test/interfaces/handlers"
-	"go-api-test/pkg/postgres"
+	"github.com/RandySteven/neo-postman/handlers"
+	handlers_interfaces "github.com/RandySteven/neo-postman/interfaces/handlers"
+	"github.com/RandySteven/neo-postman/pkg/postgres"
 )
 
 type Handlers struct {

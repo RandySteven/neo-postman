@@ -2,9 +2,9 @@ package usecases_interfaces
 
 import (
 	"context"
-	"go-api-test/apperror"
-	"go-api-test/entities/payloads/requests"
-	"go-api-test/entities/payloads/responses"
+	"github.com/RandySteven/neo-postman/apperror"
+	"github.com/RandySteven/neo-postman/entities/payloads/requests"
+	"github.com/RandySteven/neo-postman/entities/payloads/responses"
 )
 
 type TestDataUsecase interface {

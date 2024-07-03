@@ -1,4 +1,4 @@
-module go-api-test
+module github.com/RandySteven/neo-postman
 
 go 1.22
 

@@ -2,14 +2,14 @@ package usecases
 
 import (
 	"context"
-	"go-api-test/apperror"
-	"go-api-test/entities/models"
-	"go-api-test/entities/payloads/requests"
-	"go-api-test/entities/payloads/responses"
-	"go-api-test/enums"
-	repositories_interfaces "go-api-test/interfaces/repositories"
-	usecases_interfaces "go-api-test/interfaces/usecases"
-	"go-api-test/utils"
+	"github.com/RandySteven/neo-postman/apperror"
+	"github.com/RandySteven/neo-postman/entities/models"
+	"github.com/RandySteven/neo-postman/entities/payloads/requests"
+	"github.com/RandySteven/neo-postman/entities/payloads/responses"
+	"github.com/RandySteven/neo-postman/enums"
+	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
+	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
+	"github.com/RandySteven/neo-postman/utils"
 	"net/http"
 )
 

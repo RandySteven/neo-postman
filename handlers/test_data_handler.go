@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"context"
+	"github.com/RandySteven/neo-postman/entities/payloads/requests"
+	"github.com/RandySteven/neo-postman/enums"
+	handlers_interfaces "github.com/RandySteven/neo-postman/interfaces/handlers"
+	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
+	"github.com/RandySteven/neo-postman/utils"
 	"github.com/google/uuid"
-	"go-api-test/entities/payloads/requests"
-	"go-api-test/enums"
-	handlers_interfaces "go-api-test/interfaces/handlers"
-	usecases_interfaces "go-api-test/interfaces/usecases"
-	"go-api-test/utils"
 	"net/http"
 )
 

@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"go-api-test/pkg/config"
-	"go-api-test/pkg/postgres"
+	"github.com/RandySteven/neo-postman/pkg/config"
+	"github.com/RandySteven/neo-postman/pkg/postgres"
 	"log"
 )
 
