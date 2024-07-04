@@ -28,12 +28,16 @@ func (t *testDataRepository) Save(ctx context.Context, request *models.TestData)
 }
 
 func (t *testDataRepository) FindAll(ctx context.Context) (result []*models.TestData, err error) {
-	return utils.FindAll[models.TestData](ctx, t.db, queries.SelectTestData)
+	return utils.FindAll[models.TestData](ctx, t.db, queries.SelectAllTestData)
 }
 
-func (t *testDataRepository) FindByID(ctx context.Context, id *uint64) (result *models.TestData, err error) {
-	//TODO implement me
-	panic("implement me")
+func (t *testDataRepository) FindByID(ctx context.Context, id uint64) (result *models.TestData, err error) {
+	result = &models.TestData{}
+	err = utils.FindByID[models.TestData](ctx, t.db, queries.SelectTestData, id, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 func (t *testDataRepository) Update(ctx context.Context, request *models.TestData) (result *models.TestData, err error) {
@@ -41,7 +45,7 @@ func (t *testDataRepository) Update(ctx context.Context, request *models.TestDat
 	panic("implement me")
 }
 
-func (t *testDataRepository) Delete(ctx context.Context, id *uint64) (err error) {
+func (t *testDataRepository) Delete(ctx context.Context, id uint64) (err error) {
 	//TODO implement me
 	panic("implement me")
 }

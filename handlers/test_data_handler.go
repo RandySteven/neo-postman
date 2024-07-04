@@ -8,7 +8,9 @@ import (
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
 	"github.com/RandySteven/neo-postman/utils"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 )
 
 type TestDataHandler struct {
@@ -32,8 +34,21 @@ func (t *TestDataHandler) GetAllRecords(w http.ResponseWriter, r *http.Request) 
 }
 
 func (t *TestDataHandler) GetDetailRecord(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	utils.ContentType(w, enums.ContentTypeJSON)
+	var (
+		rID     = uuid.NewString()
+		ctx     = context.WithValue(r.Context(), enums.RequestID, rID)
+		dataKey = `record`
+	)
+	param := mux.Vars(r)
+	id := param[`id`]
+	intId, _ := strconv.Atoi(id)
+	result, customErr := t.usecase.GetRecord(ctx, uint64(intId))
+	if customErr != nil {
+		utils.ResponseHandler(w, customErr.ErrCode(), `failed to get record`, nil, nil, customErr)
+		return
+	}
+	utils.ResponseHandler(w, http.StatusOK, `success get record`, &dataKey, result, nil)
 }
 
 func (t *TestDataHandler) CreateTestAPI(w http.ResponseWriter, r *http.Request) {

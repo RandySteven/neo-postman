@@ -19,6 +19,30 @@ type testDataUsecase struct {
 	testDataRepo repositories_interfaces.TestDataRepository
 }
 
+func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *responses.TestRecordDetail, customErr *apperror.CustomError) {
+	testData, err := t.testDataRepo.FindByID(ctx, id)
+	if err != nil {
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get record`, err)
+	}
+	result = &responses.TestRecordDetail{
+		ID:           testData.ID,
+		Description:  testData.Description,
+		Endpoint:     testData.URI[len("http://localhost:8080"):],
+		Method:       testData.Method,
+		ResultStatus: testData.ResultStatus.ToString(),
+		ExpectedResponse: responses.TestDataExpectedResponse{
+			ExpectedResponseCode: testData.ExpectedResponseCode,
+			ExpectedResponse:     testData.ExpectedResponse,
+		},
+		ActualResponse: responses.TestDataActualResponse{
+			ActualResponseCode: testData.ActualResponseCode,
+			ActualResponse:     testData.ActualResponse,
+		},
+		CreatedAt: testData.CreatedAt.Local(),
+	}
+	return result, nil
+}
+
 func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*responses.TestRecordList, customErr *apperror.CustomError) {
 	testDatas, err := t.testDataRepo.FindAll(ctx)
 	if err != nil {

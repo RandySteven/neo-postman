@@ -11,9 +11,19 @@ const (
 
 	SelectTestData GoQuery = `
 		SELECT 
-			id, method, uri, description, request_header, 
-			request_body, expected_response_code, expected_response, 
-			actual_response_code, actual_response, result_status, created_at, updated_at, deleted_at
-		FROM test_datas
+				id, method, uri, description, request_header, 
+				request_body, expected_response_code, expected_response, 
+				actual_response_code, actual_response, result_status, created_at, updated_at, deleted_at
+			FROM test_datas
+		WHERE id = $1
+	`
+
+	SelectAllTestData GoQuery = `
+		SELECT 
+				id, method, uri, description, request_header, 
+				request_body, expected_response_code, expected_response, 
+				actual_response_code, actual_response, result_status, created_at, updated_at, deleted_at
+			FROM test_datas
+		
 	`
 )

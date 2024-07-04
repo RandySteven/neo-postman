@@ -21,4 +21,25 @@ type (
 		ResultStatus string    `json:"result_status"`
 		CreatedAt    time.Time `json:"created_at"`
 	}
+
+	TestRecordDetail struct {
+		ID               uint64                   `json:"id"`
+		Endpoint         string                   `json:"endpoint"`
+		Method           string                   `json:"method"`
+		Description      string                   `json:"description"`
+		ExpectedResponse TestDataExpectedResponse `json:"expected_response"`
+		ActualResponse   TestDataActualResponse   `json:"actual_response"`
+		ResultStatus     string                   `json:"result_status"`
+		CreatedAt        time.Time                `json:"created_at"`
+	}
+
+	TestDataExpectedResponse struct {
+		ExpectedResponseCode int             `json:"response_code"`
+		ExpectedResponse     json.RawMessage `json:"response_body"`
+	}
+
+	TestDataActualResponse struct {
+		ActualResponseCode int             `json:"response_code"`
+		ActualResponse     json.RawMessage `json:"response_body"`
+	}
 )
