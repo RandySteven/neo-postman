@@ -12,7 +12,9 @@ import (
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"time"
 )
 
 type testDataUsecase struct {
@@ -60,7 +62,10 @@ func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*response
 }
 
 func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.TestDataRequest) (result *responses.TestDataResponse, customErr *apperror.CustomError) {
-	client := &http.Client{}
+	start := time.Now()
+	client := &http.Client{
+		Transport: &http.Transport{MaxIdleConnsPerHost: 10},
+	}
 	uri := "http://localhost:8080" + request.Path
 	testData := &models.TestData{
 		Method:               request.Method,
@@ -74,7 +79,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	}
 	body, err := request.RequestBody.MarshalJSON()
 	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to marshal request body`, err)
+		return nil, apperror.NewCustomError(apperror.ErrBadRequest, `the request body is not valid`, err)
 	}
 	req, err := http.NewRequestWithContext(ctx, request.Method, uri, ioutil.NopCloser(bytes.NewBuffer(body)))
 	if err != nil {
@@ -120,10 +125,13 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	}
 	testData.ActualResponseCode = resp.StatusCode
 
-	testData, err = t.testDataRepo.Save(ctx, testData)
-	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
-	}
+	go func() (result *models.TestData, customErr *apperror.CustomError) {
+		testData, err = t.testDataRepo.Save(ctx, testData)
+		if err != nil {
+			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
+		}
+		return testData, nil
+	}()
 
 	result = &responses.TestDataResponse{
 		ID:           testData.ID,
@@ -136,6 +144,8 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		result.ExpectedResponseBody = testData.ExpectedResponse
 		result.ActualResponseBody = testData.ActualResponse
 	}
+	end := time.Since(start)
+	log.Println("latency : ", end)
 
 	return result, nil
 }
