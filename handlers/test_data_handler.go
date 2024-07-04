@@ -15,6 +15,27 @@ type TestDataHandler struct {
 	usecase usecases_interfaces.TestDataUsecase
 }
 
+func (t *TestDataHandler) GetAllRecords(w http.ResponseWriter, r *http.Request) {
+	utils.ContentType(w, enums.ContentTypeJSON)
+	var (
+		rID     = uuid.NewString()
+		ctx     = context.WithValue(r.Context(), enums.RequestID, rID)
+		dataKey = `records`
+	)
+
+	records, customErr := t.usecase.GetAllRecords(ctx)
+	if customErr != nil {
+		utils.ResponseHandler(w, customErr.ErrCode(), `failed to get records`, nil, nil, customErr)
+		return
+	}
+	utils.ResponseHandler(w, http.StatusOK, `success get records`, &dataKey, records, nil)
+}
+
+func (t *TestDataHandler) GetDetailRecord(w http.ResponseWriter, r *http.Request) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (t *TestDataHandler) CreateTestAPI(w http.ResponseWriter, r *http.Request) {
 	utils.ContentType(w, enums.ContentTypeJSON)
 	var (

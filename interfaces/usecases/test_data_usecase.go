@@ -9,4 +9,5 @@ import (
 
 type TestDataUsecase interface {
 	CreateAPITest(ctx context.Context, request *requests.TestDataRequest) (result *responses.TestDataResponse, customErr *apperror.CustomError)
+	GetAllRecords(ctx context.Context) (result []*responses.TestRecordList, customErr *apperror.CustomError)
 }

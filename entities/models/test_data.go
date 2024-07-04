@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"github.com/RandySteven/neo-postman/enums"
 	"time"
 )
@@ -10,12 +11,12 @@ type TestData struct {
 	Method               string
 	URI                  string
 	Description          string
-	RequestHeader        map[string]interface{}
-	RequestBody          map[string]interface{}
+	RequestHeader        json.RawMessage
+	RequestBody          json.RawMessage
 	ExpectedResponseCode int
-	ExpectedResponse     map[string]interface{}
+	ExpectedResponse     json.RawMessage
 	ActualResponseCode   int
-	ActualResponse       map[string]interface{}
+	ActualResponse       json.RawMessage
 	ResultStatus         enums.ResultStatus
 	CreatedAt            time.Time
 	UpdatedAt            time.Time

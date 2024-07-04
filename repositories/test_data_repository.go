@@ -14,27 +14,11 @@ type testDataRepository struct {
 }
 
 func (t *testDataRepository) Save(ctx context.Context, request *models.TestData) (result *models.TestData, err error) {
-	requestHeaderStr, err := utils.JsonString(request.RequestHeader)
-	if err != nil {
-		return nil, err
-	}
-	requestBodyStr, err := utils.JsonString(request.RequestBody)
-	if err != nil {
-		return nil, err
-	}
-	expectedResponse, err := utils.JsonString(request.ExpectedResponse)
-	if err != nil {
-		return nil, err
-	}
-	actualResponse, err := utils.JsonString(request.ActualResponse)
-	if err != nil {
-		return nil, err
-	}
 	id, err := utils.Save[models.TestData](ctx, t.db, queries.InsertTestData,
-		&request.Method, &request.URI, &request.Description, &requestHeaderStr,
-		&requestBodyStr,
-		&request.ExpectedResponseCode, &expectedResponse,
-		&request.ActualResponseCode, &actualResponse, &request.ResultStatus)
+		&request.Method, &request.URI, &request.Description, &request.RequestHeader,
+		&request.RequestBody,
+		&request.ExpectedResponseCode, &request.ExpectedResponse,
+		&request.ActualResponseCode, &request.ActualResponse, &request.ResultStatus)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +28,7 @@ func (t *testDataRepository) Save(ctx context.Context, request *models.TestData)
 }
 
 func (t *testDataRepository) FindAll(ctx context.Context) (result []*models.TestData, err error) {
-	//TODO implement me
-	panic("implement me")
+	return utils.FindAll[models.TestData](ctx, t.db, queries.SelectTestData)
 }
 
 func (t *testDataRepository) FindByID(ctx context.Context, id *uint64) (result *models.TestData, err error) {

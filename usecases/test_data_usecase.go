@@ -1,7 +1,9 @@
 package usecases
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"github.com/RandySteven/neo-postman/apperror"
 	"github.com/RandySteven/neo-postman/entities/models"
 	"github.com/RandySteven/neo-postman/entities/payloads/requests"
@@ -9,12 +11,28 @@ import (
 	"github.com/RandySteven/neo-postman/enums"
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
-	"github.com/RandySteven/neo-postman/utils"
+	"io/ioutil"
 	"net/http"
 )
 
 type testDataUsecase struct {
 	testDataRepo repositories_interfaces.TestDataRepository
+}
+
+func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*responses.TestRecordList, customErr *apperror.CustomError) {
+	testDatas, err := t.testDataRepo.FindAll(ctx)
+	if err != nil {
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get all records`, err)
+	}
+	for _, testData := range testDatas {
+		result = append(result, &responses.TestRecordList{
+			ID:           testData.ID,
+			Description:  testData.Description,
+			ResultStatus: testData.ResultStatus.ToString(),
+			CreatedAt:    testData.CreatedAt.Local(),
+		})
+	}
+	return
 }
 
 func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.TestDataRequest) (result *responses.TestDataResponse, customErr *apperror.CustomError) {
@@ -30,28 +48,30 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		ExpectedResponseCode: request.ExpectedResponseCode,
 		ActualResponse:       nil,
 	}
-	body, err := utils.MapToJSONReader(request.RequestBody)
+	body, err := request.RequestBody.MarshalJSON()
 	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to convert request`, err)
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to marshal request body`, err)
 	}
-	req, err := http.NewRequestWithContext(ctx, request.Method, uri, body)
+	req, err := http.NewRequestWithContext(ctx, request.Method, uri, ioutil.NopCloser(bytes.NewBuffer(body)))
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to hit api`, err)
 	}
-	for key, value := range testData.RequestHeader {
-		req.Header.Set(key, value.(string))
-	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get response`, err)
 	}
 
 	if request.ExpectedResponse != nil {
-		respBody, err := utils.ConvertJSON(resp)
+		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to convert response`, err)
+			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to read response body`, err)
 		}
-		testData.ActualResponse = respBody
+		testData.ActualResponse = make(json.RawMessage, 0)
+		err = json.Unmarshal(body, &testData.ActualResponse)
+		if err != nil {
+			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to unmarshal response body`, err)
+		}
 	}
 
 	for testData.ResultStatus != enums.Unexpected {
