@@ -11,6 +11,7 @@ import (
 	"github.com/RandySteven/neo-postman/enums"
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
+	"github.com/RandySteven/neo-postman/pkg/redis"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -19,6 +20,7 @@ import (
 
 type testDataUsecase struct {
 	testDataRepo repositories_interfaces.TestDataRepository
+	redis        *redis.RedisClient
 }
 
 func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *responses.TestRecordDetail, customErr *apperror.CustomError) {
@@ -91,6 +93,18 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get response`, err)
 	}
 
+	//cacheKey := fmt.Sprintf("APITest-%d", time.Now().UnixNano())
+	//var actualResponse json.RawMessage
+	//
+	//val, err := t.redis.Client().Get(ctx, cacheKey).Result()
+	//if err == nil {
+	//	actualResponse = []byte(val)
+	//
+	//} else if err != nil {
+	//
+	//} else {
+	//
+	//}
 	if request.ExpectedResponse != nil {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -125,7 +139,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	}
 	testData.ActualResponseCode = resp.StatusCode
 
-	go func() (result *models.TestData, customErr *apperror.CustomError) {
+	go func() (testData *models.TestData, customErr *apperror.CustomError) {
 		testData, err = t.testDataRepo.Save(ctx, testData)
 		if err != nil {
 			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
@@ -155,5 +169,6 @@ var _ usecases_interfaces.TestDataUsecase = &testDataUsecase{}
 func NewTestDataUsecase(testDataRepo repositories_interfaces.TestDataRepository) *testDataUsecase {
 	return &testDataUsecase{
 		testDataRepo: testDataRepo,
+		redis:        redis.NewRedis(),
 	}
 }
