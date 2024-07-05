@@ -64,6 +64,7 @@ func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*response
 }
 
 func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.TestDataRequest) (result *responses.TestDataResponse, customErr *apperror.CustomError) {
+	t.redis.Ping(ctx)
 	start := time.Now()
 	client := &http.Client{
 		Transport: &http.Transport{MaxIdleConnsPerHost: 10},
@@ -93,18 +94,6 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get response`, err)
 	}
 
-	//cacheKey := fmt.Sprintf("APITest-%d", time.Now().UnixNano())
-	//var actualResponse json.RawMessage
-	//
-	//val, err := t.redis.Client().Get(ctx, cacheKey).Result()
-	//if err == nil {
-	//	actualResponse = []byte(val)
-	//
-	//} else if err != nil {
-	//
-	//} else {
-	//
-	//}
 	if request.ExpectedResponse != nil {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -138,18 +127,31 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		}
 	}
 	testData.ActualResponseCode = resp.StatusCode
-
-	go func() (testData *models.TestData, customErr *apperror.CustomError) {
+	var (
+		resultCh    = make(chan *models.TestData)
+		customErrCh = make(chan *apperror.CustomError)
+	)
+	go func() {
 		testData, err = t.testDataRepo.Save(ctx, testData)
 		if err != nil {
-			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
+			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
+			return
 		}
-		return testData, nil
+		resultCh <- testData
+		return
 	}()
 
-	result = &responses.TestDataResponse{
-		ID:           testData.ID,
-		ResultStatus: testData.ResultStatus.ToString(),
+	if customErrCh != nil {
+		for customErr := range customErrCh {
+			return nil, customErr
+		}
+	}
+
+	for testData = range resultCh {
+		result = &responses.TestDataResponse{
+			ID:           testData.ID,
+			ResultStatus: testData.ResultStatus.ToString(),
+		}
 	}
 
 	if testData.ResultStatus == enums.Unexpected {
