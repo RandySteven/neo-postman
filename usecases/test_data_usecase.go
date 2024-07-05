@@ -15,6 +15,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -128,10 +129,13 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	}
 	testData.ActualResponseCode = resp.StatusCode
 	var (
-		resultCh    = make(chan *models.TestData)
-		customErrCh = make(chan *apperror.CustomError)
+		resultCh    = make(chan *models.TestData, 1)
+		customErrCh = make(chan *apperror.CustomError, 1)
+		wg          sync.WaitGroup
 	)
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		testData, err = t.testDataRepo.Save(ctx, testData)
 		if err != nil {
 			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
@@ -141,25 +145,28 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		return
 	}()
 
-	if customErrCh != nil {
-		for customErr := range customErrCh {
-			return nil, customErr
-		}
-	}
+	go func() {
+		wg.Wait()
+		close(customErrCh)
+		close(resultCh)
+	}()
 
-	for testData = range resultCh {
+	select {
+	case customErr = <-customErrCh:
+		return nil, customErr
+	case testData = <-resultCh:
 		result = &responses.TestDataResponse{
 			ID:           testData.ID,
 			ResultStatus: testData.ResultStatus.ToString(),
 		}
+		if testData.ResultStatus == enums.Unexpected {
+			result.ExpectedResponseCode = testData.ExpectedResponseCode
+			result.ActualResponseCode = testData.ActualResponseCode
+			result.ExpectedResponseBody = testData.ExpectedResponse
+			result.ActualResponseBody = testData.ActualResponse
+		}
 	}
 
-	if testData.ResultStatus == enums.Unexpected {
-		result.ExpectedResponseCode = testData.ExpectedResponseCode
-		result.ActualResponseCode = testData.ActualResponseCode
-		result.ExpectedResponseBody = testData.ExpectedResponse
-		result.ActualResponseBody = testData.ActualResponse
-	}
 	end := time.Since(start)
 	log.Println("latency : ", end)
 
