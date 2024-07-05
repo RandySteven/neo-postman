@@ -90,6 +90,8 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to hit api`, err)
 	}
 
+	req.Header.Add("Content-Type", "application/json")
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get response`, err)
