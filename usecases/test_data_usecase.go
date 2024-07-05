@@ -65,7 +65,6 @@ func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*response
 }
 
 func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.TestDataRequest) (result *responses.TestDataResponse, customErr *apperror.CustomError) {
-	t.redis.Ping(ctx)
 	start := time.Now()
 	client := &http.Client{
 		Transport: &http.Transport{MaxIdleConnsPerHost: 10},
@@ -90,7 +89,14 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to hit api`, err)
 	}
 
-	req.Header.Add("Content-Type", "application/json")
+	headerMap := make(map[string]string)
+	err = json.Unmarshal(testData.RequestHeader, &headerMap)
+	if err != nil {
+		return nil, apperror.NewCustomError(apperror.ErrBadRequest, `the request body is not valid`, err)
+	}
+	for key, value := range headerMap {
+		req.Header.Add(key, value)
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
