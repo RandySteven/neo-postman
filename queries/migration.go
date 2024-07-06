@@ -19,4 +19,18 @@ const (
 		    deleted_at TIMESTAMP DEFAULT NULL
 		)
 	`
+
+	CreateJiraIssueTable MigrationQuery = `
+		CREATE TABLE IF NOT EXISTS jira_issues (
+		    id BIGSERIAL PRIMARY KEY,
+		    request JSONB NOT NULL,
+		    response JSONB NOT NULL,
+		    link VARCHAR NOT NULL,
+		    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+		    created_by VARCHAR NOT NULL,
+		    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+		    updated_by VARCHAR NOT NULL,
+		    deleted_at TIMESTAMP DEFAULT NULL
+		)
+	`
 )

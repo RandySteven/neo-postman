@@ -1,5 +1,7 @@
 package requests
 
+import "github.com/RandySteven/neo-postman/enums"
+
 type (
 	CreateJiraIssueRequest struct {
 		Project struct {
@@ -7,7 +9,7 @@ type (
 		} `json:"project"`
 		Summary   string `json:"summary"`
 		IssueType struct {
-			Name string `json:"name"`
+			Name enums.IssueType `json:"name"`
 		} `json:"issueType"`
 	}
 )
