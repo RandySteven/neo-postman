@@ -31,7 +31,7 @@ func (j *jiraIssueUsecase) CreateJiraTicket(ctx context.Context, request *reques
 	}
 	response, err := j.jiraApiAction.CreateIssue(ctx, &issue)
 	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to create jira`, errr)
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to create jira`, err)
 	}
 	log.Println(response)
 
