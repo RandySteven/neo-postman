@@ -1,0 +1,9 @@
+{
+  "project": {
+    "key": "KA BAN"
+  },
+  "summary": "Should be return 400",
+  "issueType": {
+    "name": "Bug"
+  }
+}

@@ -28,7 +28,8 @@ func (j *jiraIssueUsecase) CreateJiraTicket(ctx context.Context, request *reques
 			Type: jira.IssueType{
 				Name: request.IssueType.Name.ToString(),
 			},
-			Summary: request.Summary,
+			Summary:     request.Summary,
+			Description: request.Description,
 		},
 	}
 	response, err := j.jiraApiAction.CreateIssue(ctx, &issue)
@@ -80,11 +81,16 @@ func (j *jiraIssueUsecase) CreateJiraTicket(ctx context.Context, request *reques
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to create jira`, err)
 	}
 
+	result = &responses.CreateJiraIssueResponse{
+		ID:   jiraIssue.ID,
+		Link: jiraIssue.Link,
+	}
+
 	select {
 	case customErr = <-errCh:
 		return nil, customErr
 	default:
-		return
+		return result, nil
 	}
 }
 

@@ -7,8 +7,9 @@ type (
 		Project struct {
 			Key string `json:"key"`
 		} `json:"project"`
-		Summary   string `json:"summary"`
-		IssueType struct {
+		Summary     string `json:"summary"`
+		Description string `json:"description"`
+		IssueType   struct {
 			Name enums.IssueType `json:"name"`
 		} `json:"issueType"`
 	}
