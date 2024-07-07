@@ -27,10 +27,13 @@ var _ usecases_interfaces.JiraIssueUseCase = &jiraIssueUsecase{}
 
 func NewJiraIssueUsecase(
 	jiraRepository repositories_interfaces.JiraIssueRepository,
-	jiraApiAction jira.JiraAction,
 ) *jiraIssueUsecase {
+	jira, err := jira.NewJiraClient()
+	if err != nil {
+		return nil
+	}
 	return &jiraIssueUsecase{
 		jiraRepository: jiraRepository,
-		jiraApiAction:  jiraApiAction,
+		jiraApiAction:  jira,
 	}
 }

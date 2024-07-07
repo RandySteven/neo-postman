@@ -1,14 +1,27 @@
 package jira
 
-import "github.com/andygrunwald/go-jira"
+import (
+	"context"
+	"github.com/andygrunwald/go-jira"
+)
 
-type JiraClient struct {
+type jiraClient struct {
 	client *jira.Client
 }
 
-func NewJiraClient() (*JiraClient, error) {
-	jiraClient, _ := jira.NewClient(nil, "")
-	return &JiraClient{
-		client: jiraClient,
+func (j *jiraClient) CreateIssue(ctx context.Context, request *jira.Issue) (response *jira.Response, err error) {
+	_, response, err = j.client.Issue.Create(request)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func NewJiraClient() (*jiraClient, error) {
+	client, _ := jira.NewClient(nil, "")
+	return &jiraClient{
+		client: client,
 	}, nil
 }
+
+var _ JiraAction = &jiraClient{}
