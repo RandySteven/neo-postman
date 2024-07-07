@@ -7,12 +7,14 @@ import (
 )
 
 type Handlers struct {
-	TestDataHandler handlers_interfaces.TestDataHandler
+	TestDataHandler  handlers_interfaces.TestDataHandler
+	JiraIssueHandler handlers_interfaces.JiraIssueHandler
 }
 
 func NewHandlers(repo *postgres.Repositories) *Handlers {
 	usecases := NewUsecases(repo)
 	return &Handlers{
-		TestDataHandler: handlers.NewTestDataHandler(usecases.TestDataUsecase),
+		TestDataHandler:  handlers.NewTestDataHandler(usecases.TestDataUsecase),
+		JiraIssueHandler: handlers.NewJiraIssueHandler(usecases.JiraIssueUsecase),
 	}
 }

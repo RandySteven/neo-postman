@@ -3,7 +3,8 @@ package enums
 type RouterPrefix string
 
 const (
-	TestDataPrefix RouterPrefix = "/testdata"
+	TestDataPrefix  RouterPrefix = "/testdata"
+	JiraIssuePrefix RouterPrefix = "/jira"
 )
 
 func (r RouterPrefix) ToString() string {

@@ -3,6 +3,7 @@ package jira
 import (
 	"context"
 	"github.com/andygrunwald/go-jira"
+	"os"
 )
 
 type jiraClient struct {
@@ -18,7 +19,13 @@ func (j *jiraClient) CreateIssue(ctx context.Context, request *jira.Issue) (resp
 }
 
 func NewJiraClient() (*jiraClient, error) {
-	client, _ := jira.NewClient(nil, "")
+	tp := jira.BasicAuthTransport{
+		Password: os.Getenv("JIRA_TOKEN"),
+	}
+	client, err := jira.NewClient(tp.Client(), "https://bulletinboard.atlassian.net/")
+	if err != nil {
+		return nil, err
+	}
 	return &jiraClient{
 		client: client,
 	}, nil

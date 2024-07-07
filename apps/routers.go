@@ -30,6 +30,12 @@ func NewEndpointRouters(h *Handlers) map[enums.RouterPrefix][]EndpointRouter {
 		*RegisterEndpointRouter("/{id}", http.MethodGet, h.TestDataHandler.GetDetailRecord),
 	}
 
+	endpointRouters[enums.JiraIssuePrefix] = []EndpointRouter{
+		*RegisterEndpointRouter("", http.MethodPost, h.JiraIssueHandler.CreateJiraTicket),
+		*RegisterEndpointRouter("", http.MethodGet, h.JiraIssueHandler.GetAllJiraTickets),
+		*RegisterEndpointRouter("/{id}", http.MethodGet, h.JiraIssueHandler.GetSpecificJiraTicket),
+	}
+
 	return endpointRouters
 }
 
@@ -40,6 +46,12 @@ func (h *Handlers) InitRouter(r *mux.Router) {
 	for _, router := range mapRouters[enums.TestDataPrefix] {
 		testDataRouter.HandleFunc(router.path, router.handler).Methods(router.method)
 		router.RouterLog(enums.TestDataPrefix.ToString())
+	}
+
+	jiraIssueRouter := r.PathPrefix(enums.JiraIssuePrefix.ToString()).Subrouter()
+	for _, router := range mapRouters[enums.JiraIssuePrefix] {
+		jiraIssueRouter.HandleFunc(router.path, router.handler).Methods(router.method)
+		router.RouterLog(enums.JiraIssuePrefix.ToString())
 	}
 }
 
