@@ -83,9 +83,9 @@ func (j *jiraIssueUsecase) CreateJiraTicket(ctx context.Context, request *reques
 	select {
 	case customErr = <-errCh:
 		return nil, customErr
+	default:
+		return
 	}
-
-	return
 }
 
 func (j *jiraIssueUsecase) GetAllJiraTickets(ctx context.Context) (result []*responses.JiraIssueListResponse, customErr *apperror.CustomError) {
