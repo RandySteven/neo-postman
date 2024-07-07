@@ -22,6 +22,12 @@ type jiraIssueUsecase struct {
 func (j *jiraIssueUsecase) CreateJiraTicket(ctx context.Context, request *requests.CreateJiraIssueRequest) (result *responses.CreateJiraIssueResponse, customErr *apperror.CustomError) {
 	issue := jira.Issue{
 		Fields: &jira.IssueFields{
+			Assignee: &jira.User{
+				Name: "Michael",
+			},
+			Reporter: &jira.User{
+				Name: "Reporter",
+			},
 			Project: jira.Project{
 				Key: request.Project.Key,
 			},

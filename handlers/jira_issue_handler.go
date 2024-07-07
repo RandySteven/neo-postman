@@ -16,6 +16,7 @@ type JiraIssueHandler struct {
 }
 
 func (j *JiraIssueHandler) CreateJiraTicket(w http.ResponseWriter, r *http.Request) {
+	utils.ContentType(w, "application/json")
 	var (
 		rID     = uuid.NewString()
 		ctx     = context.WithValue(r.Context(), enums.RequestID, rID)

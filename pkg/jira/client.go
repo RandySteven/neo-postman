@@ -3,6 +3,7 @@ package jira
 import (
 	"context"
 	"github.com/andygrunwald/go-jira"
+	"log"
 	"os"
 )
 
@@ -13,6 +14,7 @@ type jiraClient struct {
 func (j *jiraClient) CreateIssue(ctx context.Context, request *jira.Issue) (response *jira.Response, err error) {
 	_, response, err = j.client.Issue.Create(request)
 	if err != nil {
+		log.Println("Error creating issue:", err.Error())
 		return nil, err
 	}
 	return response, nil
