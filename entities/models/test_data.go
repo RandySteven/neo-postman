@@ -18,7 +18,8 @@ type TestData struct {
 	ActualResponseCode   int
 	ActualResponse       json.RawMessage
 	ResultStatus         enums.ResultStatus
+	IsSaved              bool
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
-	DeletedBy            *time.Time
+	DeletedAt            *time.Time
 }

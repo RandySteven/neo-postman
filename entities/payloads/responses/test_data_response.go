@@ -20,6 +20,11 @@ type (
 		Description  string    `json:"description"`
 		ResultStatus string    `json:"result_status"`
 		CreatedAt    time.Time `json:"created_at"`
+		Links        struct {
+			Detail  string `json:"detail"`
+			Save    string `json:"save"`
+			Unsaved string `json:"unsaved"`
+		} `json:"links"`
 	}
 
 	TestRecordDetail struct {

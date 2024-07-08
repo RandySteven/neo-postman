@@ -14,6 +14,7 @@ const (
 		    actual_response_code INTEGER NOT NULL,
 		    actual_response JSONB NOT NULL,
 		    result_status INTEGER NOT NULL,
+		    is_saved BOOLEAN NOT NULL DEFAULT FALSE,
 		    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 		    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 		    deleted_at TIMESTAMP DEFAULT NULL

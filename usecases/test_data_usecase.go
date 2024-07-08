@@ -24,6 +24,11 @@ type testDataUsecase struct {
 	redis        *redis.RedisClient
 }
 
+func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result *responses.TestRecordDetail, customErr *apperror.CustomError) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *responses.TestRecordDetail, customErr *apperror.CustomError) {
 	testData, err := t.testDataRepo.FindByID(ctx, id)
 	if err != nil {

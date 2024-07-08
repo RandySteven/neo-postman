@@ -41,8 +41,14 @@ func (t *testDataRepository) FindByID(ctx context.Context, id uint64) (result *m
 }
 
 func (t *testDataRepository) Update(ctx context.Context, request *models.TestData) (result *models.TestData, err error) {
-	//TODO implement me
-	panic("implement me")
+	err = utils.Update[models.TestData](ctx, t.db, queries.UpdateTestData,
+		&request.Method, &request.URI, &request.Description, &request.RequestHeader,
+		&request.RequestBody, &request.ExpectedResponseCode, &request.ExpectedResponse, &request.ResultStatus, &request.IsSaved, &request.ID)
+	if err != nil {
+		return nil, err
+	}
+	result = request
+	return result, nil
 }
 
 func (t *testDataRepository) Delete(ctx context.Context, id uint64) (err error) {

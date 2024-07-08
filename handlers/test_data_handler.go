@@ -17,6 +17,18 @@ type TestDataHandler struct {
 	usecase usecases_interfaces.TestDataUsecase
 }
 
+func (t *TestDataHandler) SaveRecord(w http.ResponseWriter, r *http.Request) {
+	utils.ContentType(w, "application/json")
+	var (
+	//rID = uuid.NewString()
+	//ctx = context.WithValue(r.Context(), enums.RequestID, rID)
+	)
+
+}
+
+func (t *TestDataHandler) UnsavedRecord(w http.ResponseWriter, r *http.Request) {
+}
+
 func (t *TestDataHandler) GetAllRecords(w http.ResponseWriter, r *http.Request) {
 	utils.ContentType(w, enums.ContentTypeJSON)
 	var (
