@@ -43,4 +43,9 @@ const (
 		    updated_at = NOW()
 		WHERE id = $12
 	`
+
+	DeleteTestUnsavedDatas GoQuery = `
+		DELETE FROM test_datas
+		WHERE is_saved = false
+	`
 )

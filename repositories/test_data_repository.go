@@ -13,6 +13,14 @@ type testDataRepository struct {
 	db *sql.DB
 }
 
+func (t *testDataRepository) DeletedUnsavedTestData(ctx context.Context) (err error) {
+	_, err = t.db.ExecContext(ctx, queries.DeleteTestUnsavedDatas.ToString())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (t *testDataRepository) Save(ctx context.Context, request *models.TestData) (result *models.TestData, err error) {
 	requestHeaderStr, requestBodyStr, expectedResponseStr, actualResponseStr := request.JsonRequest()
 	id, err := utils.Save[models.TestData](ctx, t.db, queries.InsertTestData,

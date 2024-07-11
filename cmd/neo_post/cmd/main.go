@@ -5,12 +5,13 @@ import (
 	"github.com/RandySteven/neo-postman/apps"
 	"github.com/RandySteven/neo-postman/pkg/config"
 	"github.com/RandySteven/neo-postman/pkg/postgres"
+	"github.com/RandySteven/neo-postman/pkg/scheduler"
 	"github.com/gorilla/mux"
 	"log"
 )
 
 func main() {
-	_, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	configPath, err := config.ParseFlags()
 
@@ -30,6 +31,9 @@ func main() {
 		log.Fatal(err)
 		return
 	}
+
+	scheduler := scheduler.NewScheduler(*apps.NewUsecases(repositories))
+	scheduler.RunAllJob(ctx)
 
 	handlers := apps.NewHandlers(repositories)
 	r := mux.NewRouter()

@@ -25,6 +25,10 @@ type testDataUsecase struct {
 	redis        *redis.RedisClient
 }
 
+func (t *testDataUsecase) AutoDeleteUnsavedRecord(ctx context.Context) (err error) {
+	return t.testDataRepo.DeletedUnsavedTestData(ctx)
+}
+
 func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result string, customErr *apperror.CustomError) {
 	testData, err := t.testDataRepo.FindByID(ctx, id)
 	if err != nil {
