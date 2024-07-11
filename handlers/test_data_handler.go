@@ -20,10 +20,21 @@ type TestDataHandler struct {
 func (t *TestDataHandler) SaveRecord(w http.ResponseWriter, r *http.Request) {
 	utils.ContentType(w, "application/json")
 	var (
-	//rID = uuid.NewString()
-	//ctx = context.WithValue(r.Context(), enums.RequestID, rID)
+		rID = uuid.NewString()
+		ctx = context.WithValue(r.Context(), enums.RequestID, rID)
 	)
-
+	idParam := mux.Vars(r)["id"]
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	result, customErr := t.usecase.SaveRecord(ctx, uint64(id))
+	if customErr != nil {
+		utils.ResponseHandler(w, customErr.ErrCode(), `failed to get records`, nil, nil, customErr)
+		return
+	}
+	utils.ResponseHandler(w, http.StatusOK, result, nil, nil, nil)
 }
 
 func (t *TestDataHandler) UnsavedRecord(w http.ResponseWriter, r *http.Request) {

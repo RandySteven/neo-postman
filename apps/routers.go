@@ -28,6 +28,8 @@ func NewEndpointRouters(h *Handlers) map[enums.RouterPrefix][]EndpointRouter {
 		*RegisterEndpointRouter("", http.MethodPost, h.TestDataHandler.CreateTestAPI),
 		*RegisterEndpointRouter("", http.MethodGet, h.TestDataHandler.GetAllRecords),
 		*RegisterEndpointRouter("/{id}", http.MethodGet, h.TestDataHandler.GetDetailRecord),
+		*RegisterEndpointRouter("/{id}/saved", http.MethodGet, h.TestDataHandler.SaveRecord),
+		*RegisterEndpointRouter("/{id}/unsaved", http.MethodGet, h.TestDataHandler.UnsavedRecord),
 	}
 
 	endpointRouters[enums.JiraIssuePrefix] = []EndpointRouter{

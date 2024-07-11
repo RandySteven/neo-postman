@@ -14,11 +14,19 @@ type testDataRepository struct {
 }
 
 func (t *testDataRepository) Save(ctx context.Context, request *models.TestData) (result *models.TestData, err error) {
+	requestHeaderByte, _ := request.RequestHeader.MarshalJSON()
+	requestHeaderStr := string(requestHeaderByte)
+	requestBodyByte, _ := request.RequestBody.MarshalJSON()
+	requestBodyStr := string(requestBodyByte)
+	expectedResponseByte, _ := request.ExpectedResponse.MarshalJSON()
+	expectedResponseStr := string(expectedResponseByte)
+	actualResponseByte, _ := request.ActualResponse.MarshalJSON()
+	actualResponseStr := string(actualResponseByte)
 	id, err := utils.Save[models.TestData](ctx, t.db, queries.InsertTestData,
-		&request.Method, &request.URI, &request.Description, &request.RequestHeader,
-		&request.RequestBody,
-		&request.ExpectedResponseCode, &request.ExpectedResponse,
-		&request.ActualResponseCode, &request.ActualResponse, &request.ResultStatus)
+		&request.Method, &request.URI, &request.Description, &requestHeaderStr,
+		&requestBodyStr,
+		&request.ExpectedResponseCode, &expectedResponseStr,
+		&request.ActualResponseCode, &actualResponseStr, &request.ResultStatus)
 	if err != nil {
 		return nil, err
 	}

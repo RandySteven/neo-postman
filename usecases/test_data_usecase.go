@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/RandySteven/neo-postman/apperror"
 	"github.com/RandySteven/neo-postman/entities/models"
 	"github.com/RandySteven/neo-postman/entities/payloads/requests"
@@ -24,9 +25,21 @@ type testDataUsecase struct {
 	redis        *redis.RedisClient
 }
 
-func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result *responses.TestRecordDetail, customErr *apperror.CustomError) {
-	//TODO implement me
-	panic("implement me")
+func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result string, customErr *apperror.CustomError) {
+	testData, err := t.testDataRepo.FindByID(ctx, id)
+	if err != nil {
+		return "", apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test data`, err)
+	}
+	if testData.IsSaved == true {
+		return "", apperror.NewCustomError(apperror.ErrBadRequest, `user try to save again`, fmt.Errorf("you already put this on record"))
+	}
+	testData.IsSaved = true
+	testData, err = t.testDataRepo.Update(ctx, testData)
+	if err != nil {
+		return "", apperror.NewCustomError(apperror.ErrInternalServer, `failed to save test data`, err)
+	}
+	result = "success to save test data"
+	return result, nil
 }
 
 func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *responses.TestRecordDetail, customErr *apperror.CustomError) {
@@ -84,6 +97,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		ExpectedResponse:     request.ExpectedResponse,
 		ExpectedResponseCode: request.ExpectedResponseCode,
 		ActualResponse:       nil,
+		ResultStatus:         enums.Unexpected,
 	}
 	body, err := request.RequestBody.MarshalJSON()
 	if err != nil {
@@ -152,34 +166,30 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		testData, err = t.testDataRepo.Save(ctx, testData)
 		if err != nil {
 			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
+			close(customErrCh)
+			close(resultCh)
 			return
 		}
 		resultCh <- testData
+		close(customErrCh)
+		close(resultCh)
 		return
 	}()
 
-	go func() {
-		wg.Wait()
-		close(customErrCh)
-		close(resultCh)
-	}()
-
-	select {
-	case customErr = <-customErrCh:
+	for customErr = range customErrCh {
 		return nil, customErr
-	case testData = <-resultCh:
-		result = &responses.TestDataResponse{
-			ID:           testData.ID,
-			ResultStatus: testData.ResultStatus.ToString(),
-		}
-		if testData.ResultStatus == enums.Unexpected {
-			result.ExpectedResponseCode = testData.ExpectedResponseCode
-			result.ActualResponseCode = testData.ActualResponseCode
-			result.ExpectedResponseBody = testData.ExpectedResponse
-			result.ActualResponseBody = testData.ActualResponse
-		}
 	}
-
+	testData = <-resultCh
+	result = &responses.TestDataResponse{
+		ID:           testData.ID,
+		ResultStatus: testData.ResultStatus.ToString(),
+	}
+	if testData.ResultStatus == enums.Unexpected {
+		result.ExpectedResponseCode = testData.ExpectedResponseCode
+		result.ActualResponseCode = testData.ActualResponseCode
+		result.ExpectedResponseBody = testData.ExpectedResponse
+		result.ActualResponseBody = testData.ActualResponse
+	}
 	end := time.Since(start)
 	log.Println("latency : ", end)
 

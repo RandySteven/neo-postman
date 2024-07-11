@@ -30,12 +30,19 @@ func Save[T any](ctx context.Context, db *sql.DB, query queries.GoQuery, request
 	if err != nil {
 		return nil, err
 	}
-	var id = new(uint64)
-	err = db.QueryRowContext(ctx, query.ToString(), requests...).Scan(&id)
+	stmt, err := db.PrepareContext(ctx, query.ToString())
 	if err != nil {
 		return nil, err
 	}
-	return id, nil
+	defer stmt.Close()
+
+	var id uint64
+	err = stmt.QueryRowContext(ctx, requests...).Scan(&id)
+	if err != nil {
+		// Handle specific errors (e.g., pq.Error)
+		return nil, err
+	}
+	return &id, nil
 }
 
 func FindAll[T any](ctx context.Context, db *sql.DB, query queries.GoQuery) (result []*T, err error) {
