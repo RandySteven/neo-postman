@@ -40,7 +40,7 @@ const (
 		    actual_response = $9,
 		    result_status = $10,
 		    is_saved = $11,
-		    updated_at = NOW(),
+		    updated_at = NOW()
 		WHERE id = $12
 	`
 )

@@ -23,3 +23,15 @@ type TestData struct {
 	UpdatedAt            time.Time
 	DeletedAt            *time.Time
 }
+
+func (t *TestData) JsonRequest() (requestHeaderStr, requestBodyStr, expectedResponseStr, actualResponseStr string) {
+	requestHeaderByte, _ := t.RequestHeader.MarshalJSON()
+	requestHeaderStr = string(requestHeaderByte)
+	requestBodyByte, _ := t.RequestBody.MarshalJSON()
+	requestBodyStr = string(requestBodyByte)
+	expectedResponseByte, _ := t.ExpectedResponse.MarshalJSON()
+	expectedResponseStr = string(expectedResponseByte)
+	actualResponseByte, _ := t.ActualResponse.MarshalJSON()
+	actualResponseStr = string(actualResponseByte)
+	return
+}

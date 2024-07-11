@@ -77,6 +77,16 @@ func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*response
 			Description:  testData.Description,
 			ResultStatus: testData.ResultStatus.ToString(),
 			CreatedAt:    testData.CreatedAt.Local(),
+			IsSaved:      testData.IsSaved,
+			Links: struct {
+				Detail  string `json:"detail"`
+				Save    string `json:"save"`
+				Unsaved string `json:"unsaved"`
+			}{
+				Detail:  fmt.Sprintf("http://localhost:8081/testdata/%d", testData.ID),
+				Save:    fmt.Sprintf("http://localhost:8081/testdata/%d/saved", testData.ID),
+				Unsaved: fmt.Sprintf("http://localhost:8081/testdata/%d/unsaved", testData.ID),
+			},
 		})
 	}
 	return
@@ -97,7 +107,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		ExpectedResponse:     request.ExpectedResponse,
 		ExpectedResponseCode: request.ExpectedResponseCode,
 		ActualResponse:       nil,
-		ResultStatus:         enums.Unexpected,
+		ResultStatus:         enums.Error,
 	}
 	body, err := request.RequestBody.MarshalJSON()
 	if err != nil {
@@ -149,6 +159,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 			}
 			testData.ResultStatus = resultStatus
 		}
+		testData.ResultStatus = enums.Expected
 
 		if testData.ResultStatus == enums.Expected {
 			break
