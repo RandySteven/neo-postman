@@ -34,4 +34,15 @@ const (
 		    deleted_at TIMESTAMP DEFAULT NULL
 		)
 	`
+
+	CreateTestRecordTable MigrationQuery = ` 
+		CREATE TABLE IF NOT EXISTS test_records (
+			id BIGSERIAL PRIMARY KEY,
+			test_data_id BIGINT NOT NULL,
+			created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+			updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+			deleted_at TIMESTAMP DEFAULT NULL,
+			FOREIGN KEY (test_data_id) REFERENCES test_datas(id)
+		)
+	`
 )

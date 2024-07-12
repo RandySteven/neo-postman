@@ -55,6 +55,7 @@ func initTableMigration() []queries.MigrationQuery {
 	return []queries.MigrationQuery{
 		queries.CreateTestDataTable,
 		queries.CreateJiraIssueTable,
+		queries.CreateTestRecordTable,
 	}
 }
 
