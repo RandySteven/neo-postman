@@ -7,13 +7,15 @@ import (
 )
 
 type Usecases struct {
-	TestDataUsecase  usecases_interfaces.TestDataUsecase
-	JiraIssueUsecase usecases_interfaces.JiraIssueUseCase
+	TestDataUsecase   usecases_interfaces.TestDataUsecase
+	JiraIssueUsecase  usecases_interfaces.JiraIssueUseCase
+	TestRecordUsecase usecases_interfaces.TestRecordUseCase
 }
 
 func NewUsecases(repo *postgres.Repositories) *Usecases {
 	return &Usecases{
-		TestDataUsecase:  usecases.NewTestDataUsecase(repo.TestDataRepo),
-		JiraIssueUsecase: usecases.NewJiraIssueUsecase(repo.JiraIssueRepo),
+		TestDataUsecase:   usecases.NewTestDataUsecase(repo.TestDataRepo),
+		JiraIssueUsecase:  usecases.NewJiraIssueUsecase(repo.JiraIssueRepo),
+		TestRecordUsecase: usecases.NewTestRecordUsecase(repo.TestDataRepo, repo.TestRecordRepo),
 	}
 }
