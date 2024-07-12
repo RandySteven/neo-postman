@@ -13,6 +13,14 @@ type testRecordRepository struct {
 	db *sql.DB
 }
 
+func (t *testRecordRepository) SaveSavedTestData(ctx context.Context) (err error) {
+	_, err = t.db.ExecContext(ctx, queries.InsertSelectTestData.ToString())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (t *testRecordRepository) Save(ctx context.Context, request *models.TestRecord) (result *models.TestRecord, err error) {
 	id, err := utils.Save[models.TestRecord](ctx, t.db, queries.InsertTestRecord, &request.TestDataID)
 	if err != nil {

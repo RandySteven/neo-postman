@@ -19,4 +19,9 @@ const (
 		FROM test_records
 		WHERE id = $1
 	`
+
+	InsertSelectTestData GoQuery = `
+		INSERT INTO test_records (test_data_id) VALUES 
+			SELECT id FROM test_datas WHERE is_saved = true
+	`
 )

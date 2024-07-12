@@ -32,8 +32,12 @@ func main() {
 		return
 	}
 
-	scheduler := scheduler.NewScheduler(*apps.NewUsecases(repositories))
-	scheduler.RunAllJob(ctx)
+	scheduler := scheduler.NewScheduler(*repositories)
+	err = scheduler.RunAllJob(ctx)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 
 	handlers := apps.NewHandlers(repositories)
 	r := mux.NewRouter()

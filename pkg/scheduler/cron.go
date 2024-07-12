@@ -2,26 +2,44 @@ package scheduler
 
 import (
 	"context"
-	"github.com/RandySteven/neo-postman/apps"
-	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
+	schedulers_interfaces "github.com/RandySteven/neo-postman/interfaces/schedulers"
+	"github.com/RandySteven/neo-postman/pkg/postgres"
+	"github.com/RandySteven/neo-postman/schedulers"
 	"github.com/robfig/cron"
-	"log"
 	"time"
 )
 
 type (
 	scheduler struct {
-		scheduler          *cron.Cron
-		testCaseDependency TestCaseDependency
+		scheduler           *cron.Cron
+		schedulerDependency SchedulersDependency
 	}
 
-	TestCaseDependency struct {
-		testCaseUsecase usecases_interfaces.TestDataUsecase
+	SchedulersDependency struct {
+		testDataScheduler   schedulers_interfaces.TestDataScheduler
+		testReportScheduler schedulers_interfaces.TestRecordScheduler
 	}
 )
 
+func (s *scheduler) autoCreatedTestRecord(ctx context.Context) error {
+	err := s.scheduler.AddFunc("@daily", func() {
+		err := s.schedulerDependency.testReportScheduler.AutosaveTestRecords(ctx)
+		if err != nil {
+			return
+		}
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *scheduler) RunAllJob(ctx context.Context) (err error) {
-	err = s.deleteAllTestRecord(ctx)
+	err = s.autoDeleteUnsavedTestData(ctx)
+	if err != nil {
+		return err
+	}
+	err = s.autoCreatedTestRecord(ctx)
 	if err != nil {
 		return err
 	}
@@ -29,11 +47,10 @@ func (s *scheduler) RunAllJob(ctx context.Context) (err error) {
 	return nil
 }
 
-func (s *scheduler) deleteAllTestRecord(ctx context.Context) error {
+func (s *scheduler) autoDeleteUnsavedTestData(ctx context.Context) error {
 	err := s.scheduler.AddFunc("@daily", func() {
-		err := s.testCaseDependency.testCaseUsecase.AutoDeleteUnsavedRecord(ctx)
+		err := s.schedulerDependency.testDataScheduler.AutoDeleteUnsavedTestData(ctx)
 		if err != nil {
-			log.Printf("failed to delete unsaved record: %v", err)
 			return
 		}
 	})
@@ -45,10 +62,13 @@ func (s *scheduler) deleteAllTestRecord(ctx context.Context) error {
 
 var _ Job = &scheduler{}
 
-func NewScheduler(usecases apps.Usecases) *scheduler {
+func NewScheduler(repo postgres.Repositories) *scheduler {
 	jakartaTime, _ := time.LoadLocation("Asia/Jakarta")
 	return &scheduler{
-		scheduler:          cron.NewWithLocation(jakartaTime),
-		testCaseDependency: TestCaseDependency{testCaseUsecase: usecases.TestDataUsecase},
+		scheduler: cron.NewWithLocation(jakartaTime),
+		schedulerDependency: SchedulersDependency{
+			testReportScheduler: schedulers.NewTestRecordScheduler(repo.TestRecordRepo),
+			testDataScheduler:   schedulers.NewTestDataScheduler(repo.TestDataRepo),
+		},
 	}
 }

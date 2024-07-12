@@ -15,9 +15,10 @@ import (
 )
 
 type Repositories struct {
-	TestDataRepo  repositories_interfaces.TestDataRepository
-	JiraIssueRepo repositories_interfaces.JiraIssueRepository
-	db            *sql.DB
+	TestDataRepo   repositories_interfaces.TestDataRepository
+	JiraIssueRepo  repositories_interfaces.JiraIssueRepository
+	TestRecordRepo repositories_interfaces.TestRecordRepository
+	db             *sql.DB
 }
 
 func NewRepositories(config *config.Config) (*Repositories, error) {
@@ -45,9 +46,10 @@ func NewRepositories(config *config.Config) (*Repositories, error) {
 		return nil, err
 	}
 	return &Repositories{
-		TestDataRepo:  repositories.NewTestDataRepository(db),
-		JiraIssueRepo: repositories.NewJiraRepository(db),
-		db:            db,
+		TestDataRepo:   repositories.NewTestDataRepository(db),
+		JiraIssueRepo:  repositories.NewJiraRepository(db),
+		TestRecordRepo: repositories.NewTestRecordRepository(db),
+		db:             db,
 	}, nil
 }
 
