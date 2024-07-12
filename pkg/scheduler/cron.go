@@ -21,19 +21,6 @@ type (
 	}
 )
 
-func (s *scheduler) autoCreatedTestRecord(ctx context.Context) error {
-	err := s.scheduler.AddFunc("@daily", func() {
-		err := s.schedulerDependency.testReportScheduler.AutosaveTestRecords(ctx)
-		if err != nil {
-			return
-		}
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (s *scheduler) RunAllJob(ctx context.Context) (err error) {
 	err = s.autoDeleteUnsavedTestData(ctx)
 	if err != nil {
@@ -47,9 +34,17 @@ func (s *scheduler) RunAllJob(ctx context.Context) (err error) {
 	return nil
 }
 
+func (s *scheduler) autoCreatedTestRecord(ctx context.Context) error {
+	return s.runScheduler(ctx, "@daily", s.schedulerDependency.testReportScheduler.AutosaveTestRecords)
+}
+
 func (s *scheduler) autoDeleteUnsavedTestData(ctx context.Context) error {
-	err := s.scheduler.AddFunc("@daily", func() {
-		err := s.schedulerDependency.testDataScheduler.AutoDeleteUnsavedTestData(ctx)
+	return s.runScheduler(ctx, "@daily", s.schedulerDependency.testDataScheduler.AutoDeleteUnsavedTestData)
+}
+
+func (s *scheduler) runScheduler(ctx context.Context, spec string, schedulerFunc func(ctx context.Context) error) error {
+	err := s.scheduler.AddFunc(spec, func() {
+		err := schedulerFunc(ctx)
 		if err != nil {
 			return
 		}
