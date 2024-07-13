@@ -21,7 +21,14 @@ const (
 	`
 
 	InsertSelectTestData GoQuery = `
-		INSERT INTO test_records (test_data_id) VALUES 
-			SELECT id FROM test_datas WHERE is_saved = true
+		INSERT INTO test_records (test_data_id)
+		SELECT id
+		FROM test_datas
+		WHERE is_saved = true
+		  AND NOT EXISTS (
+			SELECT 1
+			FROM test_records
+			WHERE test_data_id = test_datas.id
+		);	
 	`
 )
