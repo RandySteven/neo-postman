@@ -7,8 +7,17 @@ import (
 	"github.com/RandySteven/neo-postman/pkg/postgres"
 	"github.com/RandySteven/neo-postman/pkg/scheduler"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"log"
 )
+
+func init() {
+	err := godotenv.Load("./files/env/.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+		return
+	}
+}
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())

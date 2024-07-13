@@ -2,6 +2,8 @@ package jira
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github.com/andygrunwald/go-jira"
 	"log"
 	"os"
@@ -11,7 +13,13 @@ type jiraClient struct {
 	client *jira.Client
 }
 
+func (j *jiraClient) GetClient() *jira.Client {
+	return j.client
+}
+
 func (j *jiraClient) CreateIssue(ctx context.Context, request *jira.Issue) (response *jira.Response, err error) {
+	requestStr := fmt.Sprintf("%v", request)
+	log.Println("jira issue : ", requestStr)
 	_, response, err = j.client.Issue.Create(request)
 	if err != nil {
 		log.Println("Error creating issue:", err.Error())
@@ -21,10 +29,15 @@ func (j *jiraClient) CreateIssue(ctx context.Context, request *jira.Issue) (resp
 }
 
 func NewJiraClient() (*jiraClient, error) {
-	tp := jira.BasicAuthTransport{
-		Password: os.Getenv("JIRA_TOKEN"),
+	jiraToken := os.Getenv("JIRA_TOKEN")
+	if jiraToken == "" {
+		return nil, errors.New("JIRA_TOKEN environment variable not set")
 	}
-	client, err := jira.NewClient(tp.Client(), "https://bulletinboard.atlassian.net/")
+
+	tp := jira.BasicAuthTransport{
+		Password: jiraToken,
+	}
+	client, err := jira.NewClient(tp.Client(), "https://bulletinboard.atlassian.net")
 	if err != nil {
 		return nil, err
 	}
