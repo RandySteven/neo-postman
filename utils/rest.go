@@ -100,6 +100,7 @@ func BindMultipartForm(req *http.Request, request interface{}) error {
 }
 
 func ResponseHandler(w http.ResponseWriter, responseCode int, message string, dataKey *string, responseData any, err error) {
+	ContentType(w, "application/json")
 	w.WriteHeader(responseCode)
 	responseMap := make(map[string]any)
 	if dataKey != nil && responseData != nil {

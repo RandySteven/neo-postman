@@ -155,15 +155,16 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		}
 
 		if request.ExpectedResponse != nil {
-			resultStatus := enums.Expected
-			for key, value := range request.ExpectedResponse {
-				if testData.ActualResponse[key] != value {
-					resultStatus = enums.Unexpected
+			expectedResponseMap := jsonToMap(request.ExpectedResponse)
+			actualResponseMap := jsonToMap(testData.ActualResponse)
+			for key, value := range expectedResponseMap {
+				if actualResponseMap[key] != value {
+					testData.ResultStatus = enums.Unexpected
+					break
 				}
+				testData.ResultStatus = enums.Expected
 			}
-			testData.ResultStatus = resultStatus
 		}
-		testData.ResultStatus = enums.Expected
 
 		if testData.ResultStatus == enums.Expected {
 			break
@@ -209,6 +210,14 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	log.Println("latency : ", end)
 
 	return result, nil
+}
+
+func jsonToMap(something json.RawMessage) (result map[string]interface{}) {
+	err := json.Unmarshal(something, &result)
+	if err != nil {
+		return
+	}
+	return result
 }
 
 var _ usecases_interfaces.TestDataUsecase = &testDataUsecase{}
