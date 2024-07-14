@@ -26,8 +26,10 @@ type (
 	}
 
 	TestRecordListResponse struct {
-		ID    uint64 `json:"id"`
-		Links struct {
+		ID          uint64 `json:"id"`
+		Endpoint    string `json:"endpoint"`
+		Description string `json:"description"`
+		Links       struct {
 			Detail string `json:"detail"`
 		} `json:"links"`
 		CreatedAt time.Time `json:"created_at"`

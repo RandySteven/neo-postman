@@ -10,6 +10,9 @@ import (
 	"github.com/RandySteven/neo-postman/entities/payloads/responses"
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
+	"log"
+	"sync"
+	"time"
 )
 
 type testRecordUsecase struct {
@@ -36,23 +39,57 @@ func (t *testRecordUsecase) CreateTestRecord(ctx context.Context, request *reque
 }
 
 func (t *testRecordUsecase) GetAllTestRecords(ctx context.Context) (result []*responses.TestRecordListResponse, customErr *apperror.CustomError) {
+	startTime := time.Now()
 	testRecords, err := t.testRecordRepo.FindAll(ctx)
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test records`, err)
 	}
-	for _, testRecord := range testRecords {
-		result = append(result, &responses.TestRecordListResponse{
-			ID: testRecord.ID,
-			Links: struct {
-				Detail string `json:"detail"`
-			}{
-				Detail: fmt.Sprintf("http://localhost:8081/testrecord/%d", testRecord.ID),
-			},
-			CreatedAt: testRecord.CreatedAt,
-			UpdatedAt: testRecord.UpdatedAt,
-		})
+	customErrCh := make(chan *apperror.CustomError)
+	resultCh := make(chan []*responses.TestRecordListResponse)
+	wg := sync.WaitGroup{}
+
+	wg.Add(len(testRecords))
+
+	go func() {
+		defer wg.Done()
+		for _, testRecord := range testRecords {
+			testData, err := t.testDataRepo.FindByID(ctx, testRecord.TestDataID)
+			if err != nil {
+				customErr = apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test data`, err)
+				customErrCh <- customErr
+				return
+			}
+			result = append(result, &responses.TestRecordListResponse{
+				ID:          testRecord.ID,
+				Endpoint:    testData.URI,
+				Description: testData.Description,
+				Links: struct {
+					Detail string `json:"detail"`
+				}{
+					Detail: fmt.Sprintf("http://localhost:8081/testrecord/%d", testRecord.ID),
+				},
+				CreatedAt: testRecord.CreatedAt,
+				UpdatedAt: testRecord.UpdatedAt,
+			})
+		}
+		resultCh <- result
+		return
+	}()
+
+	go func() {
+		wg.Wait()
+		close(customErrCh)
+		close(resultCh)
+	}()
+
+	log.Println("latency : ", time.Since(startTime))
+
+	select {
+	case customErr = <-customErrCh:
+		return nil, customErr
+	case result = <-resultCh:
+		return result, nil
 	}
-	return result, nil
 }
 
 func (t *testRecordUsecase) GetTestRecordDetail(ctx context.Context, id uint64) (result *responses.TestRecordDetailResponse, customErr *apperror.CustomError) {
