@@ -7,8 +7,8 @@ import (
 
 func RegisterMiddleware(r *mux.Router) *mux.Router {
 	r.Use(
-		//middlewares.CorsMiddleware,
-		//middlewares.LoggingMiddleware,
+		middlewares.CorsMiddleware,
+		middlewares.LoggingMiddleware,
 		middlewares.TimeoutMiddleware,
 	)
 	return r
