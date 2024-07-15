@@ -13,6 +13,10 @@ type (
 		ActualResponseCode   int             `json:"actual_response_code,omitempty"`
 		ExpectedResponseBody json.RawMessage `json:"expected_response_body,omitempty"`
 		ActualResponseBody   json.RawMessage `json:"actual_response_body,omitempty"`
+		Links                struct {
+			Detail string `json:"detail"`
+			Saved  string `json:"saved"`
+		} `json:"links"`
 	}
 
 	TestRecordList struct {

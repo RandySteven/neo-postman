@@ -199,6 +199,13 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	result = &responses.TestDataResponse{
 		ID:           testData.ID,
 		ResultStatus: testData.ResultStatus.ToString(),
+		Links: struct {
+			Detail string `json:"detail"`
+			Saved  string `json:"saved"`
+		}{
+			Detail: fmt.Sprintf("http://localhost:8081/testdata/%d", testData.ID),
+			Saved:  fmt.Sprintf("http://localhost:8081/testdata/%d/saved", testData.ID),
+		},
 	}
 	if testData.ResultStatus == enums.Unexpected {
 		result.ExpectedResponseCode = testData.ExpectedResponseCode
