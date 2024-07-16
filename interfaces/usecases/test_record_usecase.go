@@ -9,7 +9,7 @@ import (
 
 type TestRecordUseCase interface {
 	AutoSaveTestRecord(ctx context.Context) (err error)
-	CreateTestRecord(ctx context.Context, request *requests.TestRecordRequest) (customErr *apperror.CustomError)
+	CreateTestRecord(ctx context.Context, request *requests.TestRecordRequest) (result *responses.TestRecordCreateResponse, customErr *apperror.CustomError)
 	GetAllTestRecords(ctx context.Context) (result []*responses.TestRecordListResponse, customErr *apperror.CustomError)
 	GetTestRecordDetail(ctx context.Context, id uint64) (result *responses.TestRecordDetailResponse, customErr *apperror.CustomError)
 }

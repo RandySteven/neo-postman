@@ -24,18 +24,63 @@ func (t *testRecordUsecase) AutoSaveTestRecord(ctx context.Context) (err error) 
 	return
 }
 
-func (t *testRecordUsecase) CreateTestRecord(ctx context.Context, request *requests.TestRecordRequest) (customErr *apperror.CustomError) {
-	testRecord := &models.TestRecord{}
-	if len(request.TestDataIDs) != 0 {
-
-	} else {
-		testRecord.TestDataID = request.TestDataID
-		_, err := t.testRecordRepo.Save(ctx, testRecord)
-		if err != nil {
-			return apperror.NewCustomError(apperror.ErrInternalServer, `failed to create test record`, err)
+func (t *testRecordUsecase) CreateTestRecord(ctx context.Context, request *requests.TestRecordRequest) (result *responses.TestRecordCreateResponse, customErr *apperror.CustomError) {
+	defer func() {
+		if customErr != nil {
+			recover()
 		}
+	}()
+
+	result = &responses.TestRecordCreateResponse{}
+	testRecord := &models.TestRecord{}
+	var (
+		wg          sync.WaitGroup
+		customErrCh = make(chan *apperror.CustomError)
+		idUint      = make(chan uint64)
+	)
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		testData, err := t.testDataRepo.FindByID(ctx, request.TestDataID)
+		if err != nil {
+			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test data`, err)
+			return
+		}
+		testData.IsSaved = true
+		testData, err = t.testDataRepo.Update(ctx, testData)
+		if err != nil {
+			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to update test data`, err)
+			return
+
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		var err error
+		testRecord.TestDataID = request.TestDataID
+		testRecord, err = t.testRecordRepo.Save(ctx, testRecord)
+		if err != nil {
+			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to create test record`, err)
+			return
+		}
+		idUint <- testRecord.ID
+	}()
+
+	go func() {
+		wg.Wait()
+		close(customErrCh)
+		close(idUint)
+	}()
+
+	select {
+	case customErr = <-customErrCh:
+		return nil, customErr
+	default:
+		result.ID = <-idUint
+		return result, nil
 	}
-	return nil
 }
 
 func (t *testRecordUsecase) GetAllTestRecords(ctx context.Context) (result []*responses.TestRecordListResponse, customErr *apperror.CustomError) {

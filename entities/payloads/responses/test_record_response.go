@@ -7,6 +7,7 @@ import (
 
 type (
 	TestRecordCreateResponse struct {
+		ID uint64 `json:"id,omitempty"`
 	}
 
 	TestRecordDetailResponse struct {

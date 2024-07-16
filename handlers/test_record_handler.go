@@ -22,17 +22,18 @@ func (t *TestRecordHandler) CreateTestRecord(w http.ResponseWriter, r *http.Requ
 		rID     = uuid.NewString()
 		ctx     = context.WithValue(r.Context(), enums.RequestID, rID)
 		request = &requests.TestRecordRequest{}
+		dataKey = `test_record`
 	)
-	if err := utils.BindRequest(r, &request); err != nil {
+	if err := utils.BindRequest(r, request); err != nil {
 		utils.ResponseHandler(w, http.StatusBadRequest, `request invalid`, nil, nil, err)
 		return
 	}
-	customErr := t.testRecordUsecase.CreateTestRecord(ctx, request)
+	result, customErr := t.testRecordUsecase.CreateTestRecord(ctx, request)
 	if customErr != nil {
 		utils.ResponseHandler(w, customErr.ErrCode(), `request invalid`, nil, nil, customErr)
 		return
 	}
-	utils.ResponseHandler(w, http.StatusCreated, `success create test record`, nil, nil, nil)
+	utils.ResponseHandler(w, http.StatusCreated, `success create test record`, &dataKey, result, nil)
 }
 
 func (t *TestRecordHandler) GetAllTestRecords(w http.ResponseWriter, r *http.Request) {
