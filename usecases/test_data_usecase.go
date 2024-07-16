@@ -16,6 +16,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 )
@@ -101,7 +102,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	client := &http.Client{
 		Transport: &http.Transport{MaxIdleConnsPerHost: 10},
 	}
-	uri := "http://localhost:8080" + request.Path
+	uri := os.Getenv("BASE_HOST") + request.Path
 	testData := &models.TestData{
 		Method:               request.Method,
 		Description:          request.Description,
