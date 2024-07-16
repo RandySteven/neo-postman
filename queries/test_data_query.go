@@ -13,7 +13,7 @@ const (
 		SELECT 
 				id, method, uri, description, request_header, 
 				request_body, expected_response_code, expected_response, 
-				actual_response_code, actual_response, result_status, is_saved, created_at, updated_at, deleted_at
+				actual_response_code, actual_response, result_status, is_saved, response_time, created_at, updated_at, deleted_at
 			FROM test_datas
 		WHERE id = $1
 	`
@@ -22,7 +22,7 @@ const (
 		SELECT 
 				id, method, uri, description, request_header, 
 				request_body, expected_response_code, expected_response, 
-				actual_response_code, actual_response, result_status, is_saved, created_at, updated_at, deleted_at
+				actual_response_code, actual_response, result_status, is_saved, response_time, created_at, updated_at, deleted_at
 			FROM test_datas
 	`
 
