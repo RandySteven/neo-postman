@@ -39,6 +39,7 @@ const (
 		CREATE TABLE IF NOT EXISTS test_records (
 			id BIGSERIAL PRIMARY KEY,
 			test_data_id BIGINT NOT NULL,
+			response_time NUMBER NOT NULL,
 			created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 			updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 			deleted_at TIMESTAMP DEFAULT NULL,

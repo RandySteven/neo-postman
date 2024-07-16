@@ -27,7 +27,7 @@ func (t *testDataRepository) Save(ctx context.Context, request *models.TestData)
 		&request.Method, &request.URI, &request.Description, &requestHeaderStr,
 		&requestBodyStr,
 		&request.ExpectedResponseCode, &expectedResponseStr,
-		&request.ActualResponseCode, &actualResponseStr, &request.ResultStatus)
+		&request.ActualResponseCode, &actualResponseStr, &request.ResultStatus, &request.ResponseTime)
 	if err != nil {
 		return nil, err
 	}

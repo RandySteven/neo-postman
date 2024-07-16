@@ -19,9 +19,11 @@ type TestData struct {
 	ActualResponse       json.RawMessage
 	ResultStatus         enums.ResultStatus
 	IsSaved              bool
-	CreatedAt            time.Time
-	UpdatedAt            time.Time
-	DeletedAt            *time.Time
+	ResponseTime         time.Duration
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
 func (t *TestData) JsonRequest() (requestHeaderStr, requestBodyStr, expectedResponseStr, actualResponseStr string) {

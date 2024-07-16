@@ -3,9 +3,9 @@ package queries
 const (
 	InsertTestData GoQuery = `
 		INSERT INTO test_datas 
-		    (method, uri, description, request_header, request_body, expected_response_code, expected_response, actual_response_code, actual_response, result_status)
+		    (method, uri, description, request_header, request_body, expected_response_code, expected_response, actual_response_code, actual_response, result_status, response_time)
 		VALUES 
-		    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING id
 	`
 

@@ -17,6 +17,7 @@ type (
 			Detail string `json:"detail"`
 			Saved  string `json:"saved"`
 		} `json:"links"`
+		ResponseTime time.Duration `json:"response_time"`
 	}
 
 	TestRecordList struct {

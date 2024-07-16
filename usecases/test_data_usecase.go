@@ -132,10 +132,13 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		req.Header.Add(key, value)
 	}
 
+	responseTimeStart := time.Now()
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get response`, err)
 	}
+	responseTime := time.Since(responseTimeStart)
+	testData.ResponseTime = responseTime
 
 	if request.ExpectedResponse != nil {
 		body, err := ioutil.ReadAll(resp.Body)
@@ -207,6 +210,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 			Detail: fmt.Sprintf("http://localhost:8081/testdata/%d", testData.ID),
 			Saved:  fmt.Sprintf("http://localhost:8081/testdata/%d/saved", testData.ID),
 		},
+		ResponseTime: responseTime,
 	}
 	if testData.ResultStatus == enums.Unexpected {
 		result.ExpectedResponseCode = testData.ExpectedResponseCode
