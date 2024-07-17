@@ -3,6 +3,7 @@ package enums
 type RouterPrefix string
 
 const (
+	DevPrefix        RouterPrefix = "/dev"
 	TestDataPrefix   RouterPrefix = "/testdata"
 	JiraIssuePrefix  RouterPrefix = "/jira"
 	TestRecordPrefix RouterPrefix = "/testrecord"

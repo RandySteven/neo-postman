@@ -44,6 +44,10 @@ func NewEndpointRouters(h *Handlers) map[enums.RouterPrefix][]EndpointRouter {
 		*RegisterEndpointRouter("/{id}", http.MethodGet, h.TestRecordHandler.GetTestRecordDetail),
 	}
 
+	endpointRouters[enums.DevPrefix] = []EndpointRouter{
+		*RegisterEndpointRouter("/listurl", http.MethodGet, h.DevHandler.GetListUrl),
+	}
+
 	return endpointRouters
 }
 
@@ -66,6 +70,12 @@ func (h *Handlers) InitRouter(r *mux.Router) {
 	for _, router := range mapRouters[enums.TestRecordPrefix] {
 		testRecordRouter.HandleFunc(router.path, router.handler).Methods(router.method)
 		router.RouterLog(enums.TestRecordPrefix.ToString())
+	}
+
+	devRouter := r.PathPrefix(enums.DevPrefix.ToString()).Subrouter()
+	for _, router := range mapRouters[enums.DevPrefix] {
+		devRouter.HandleFunc(router.path, router.handler).Methods(router.method)
+		router.RouterLog(enums.DevPrefix.ToString())
 	}
 }
 

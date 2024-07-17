@@ -3,13 +3,14 @@ package usecases
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/RandySteven/neo-postman/apperror"
 	"github.com/RandySteven/neo-postman/entities/models"
 	"github.com/RandySteven/neo-postman/entities/payloads/requests"
 	"github.com/RandySteven/neo-postman/entities/payloads/responses"
+	"github.com/RandySteven/neo-postman/enums"
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
+	"github.com/RandySteven/neo-postman/utils"
 	"log"
 	"sync"
 	"time"
@@ -111,7 +112,7 @@ func (t *testRecordUsecase) GetAllTestRecords(ctx context.Context) (result []*re
 				Links: struct {
 					Detail string `json:"detail"`
 				}{
-					Detail: fmt.Sprintf("http://localhost:8081/testrecord/%d", testRecord.ID),
+					Detail: utils.DetailURL(enums.TestRecordPrefix.ToString(), testRecord.ID),
 				},
 				CreatedAt: testRecord.CreatedAt,
 				UpdatedAt: testRecord.UpdatedAt,
@@ -165,7 +166,7 @@ func (t *testRecordUsecase) GetTestRecordDetail(ctx context.Context, id uint64) 
 			ResponseCode:  testData.ActualResponseCode,
 			Links: struct {
 				Detail string `json:"detail"`
-			}{Detail: fmt.Sprintf("http://localhost:8081/testdata/%d", testData.ID)},
+			}{Detail: utils.DetailURL(enums.TestDataPrefix.ToString(), testData.ID)},
 		},
 		CreatedAt: testData.CreatedAt,
 		UpdatedAt: testData.UpdatedAt,

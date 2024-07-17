@@ -13,11 +13,11 @@ import (
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
 	"github.com/RandySteven/neo-postman/pkg/redis"
+	"github.com/RandySteven/neo-postman/pkg/yaml"
 	"github.com/RandySteven/neo-postman/utils"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"sync"
 	"time"
 )
@@ -101,10 +101,18 @@ func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*response
 
 func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.TestDataRequest) (result *responses.TestDataResponse, customErr *apperror.CustomError) {
 	start := time.Now()
+	baseUrl, err := yaml.ReadBaseURLYAML()
+	if err != nil {
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed get base url`, err)
+	}
+	exists := baseUrl.CheckURLExists(request.URLKey)
+	if !exists {
+		return nil, apperror.NewCustomError(apperror.ErrBadRequest, `url doesn exists`, fmt.Errorf("url doesn exists"))
+	}
 	client := &http.Client{
 		Transport: &http.Transport{MaxIdleConnsPerHost: 10},
 	}
-	uri := os.Getenv("BASE_HOST") + request.Path
+	uri := baseUrl.UrlList[request.URLKey] + request.Path
 	testData := &models.TestData{
 		Method:               request.Method,
 		Description:          request.Description,
@@ -202,6 +210,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		return nil, customErr
 	}
 	testData = <-resultCh
+	detailUrl := utils.DetailURL(enums.TestDataPrefix.ToString(), testData.ID)
 	result = &responses.TestDataResponse{
 		ID:           testData.ID,
 		ResultStatus: testData.ResultStatus.ToString(),
@@ -209,8 +218,8 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 			Detail string `json:"detail"`
 			Saved  string `json:"saved"`
 		}{
-			Detail: fmt.Sprintf("http://localhost:8081/testdata/%d", testData.ID),
-			Saved:  fmt.Sprintf("http://localhost:8081/testdata/%d/saved", testData.ID),
+			Detail: detailUrl,
+			Saved:  detailUrl + "/saved",
 		},
 		ResponseTime: responseTime,
 	}

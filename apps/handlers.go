@@ -7,6 +7,7 @@ import (
 )
 
 type Handlers struct {
+	DevHandler        handlers_interfaces.DevHandler
 	TestDataHandler   handlers_interfaces.TestDataHandler
 	JiraIssueHandler  handlers_interfaces.JiraIssueHandler
 	TestRecordHandler handlers_interfaces.TestRecordHandler
@@ -18,5 +19,6 @@ func NewHandlers(repo *postgres.Repositories) *Handlers {
 		TestDataHandler:   handlers.NewTestDataHandler(usecases.TestDataUsecase),
 		JiraIssueHandler:  handlers.NewJiraIssueHandler(usecases.JiraIssueUsecase),
 		TestRecordHandler: handlers.NewTestRecordHandler(usecases.TestRecordUsecase),
+		DevHandler:        handlers.NewDevHandler(),
 	}
 }
