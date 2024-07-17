@@ -8,6 +8,11 @@ run:
 migration:
 	${gorun} ${cmd_folder}migration -config ${yaml_file}
 
+drop:
+	${gorun} ${cmd_folder}drop -config ${yaml_file}
+
+restart: drop migration run
+
 run-docker:
 	docker compose up --build -d
 

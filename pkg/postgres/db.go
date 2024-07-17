@@ -61,11 +61,30 @@ func initTableMigration() []queries.MigrationQuery {
 	}
 }
 
+func initDropTable() []queries.DropQuery {
+	return []queries.DropQuery{
+		queries.DropJiraIssueTable,
+		queries.DropTestRecordTable,
+		queries.DropTestDataTable,
+	}
+}
+
 func (r *Repositories) Migration(ctx context.Context) {
 	migrationQueries := initTableMigration()
 
 	for _, migration := range migrationQueries {
 		_, err := r.db.ExecContext(ctx, migration.ToString())
+		if err != nil {
+			log.Fatalf("Error in migration : %s \n", err.Error())
+			return
+		}
+	}
+}
+
+func (r *Repositories) Drop(ctx context.Context) {
+	dropQueries := initDropTable()
+	for _, query := range dropQueries {
+		_, err := r.db.ExecContext(ctx, query.ToString())
 		if err != nil {
 			log.Fatalf("Error in migration : %s \n", err.Error())
 			return
