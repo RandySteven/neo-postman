@@ -3,10 +3,12 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
 
 func ConvertJSON(reader *http.Response) (map[string]interface{}, error) {
@@ -30,6 +32,10 @@ func ConvertJSON(reader *http.Response) (map[string]interface{}, error) {
 	}
 
 	return result, nil
+}
+
+func DetailURL(prefix string, id uint64) string {
+	return fmt.Sprintf("%s/%s/%d", os.Getenv("APP_HOST"), prefix, id)
 }
 
 func MapToJSONReader(data map[string]interface{}) (io.Reader, error) {

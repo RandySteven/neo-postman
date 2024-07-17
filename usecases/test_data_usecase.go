@@ -13,6 +13,7 @@ import (
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
 	"github.com/RandySteven/neo-postman/pkg/redis"
+	"github.com/RandySteven/neo-postman/utils"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -77,6 +78,7 @@ func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*response
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get all records`, err)
 	}
 	for _, testData := range testDatas {
+		detailUrl := utils.DetailURL(enums.TestDataPrefix.ToString(), testData.ID)
 		result = append(result, &responses.TestRecordList{
 			ID:           testData.ID,
 			Description:  testData.Description,
@@ -88,9 +90,9 @@ func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*response
 				Save    string `json:"save"`
 				Unsaved string `json:"unsaved"`
 			}{
-				Detail:  fmt.Sprintf("http://localhost:8081/testdata/%d", testData.ID),
-				Save:    fmt.Sprintf("http://localhost:8081/testdata/%d/saved", testData.ID),
-				Unsaved: fmt.Sprintf("http://localhost:8081/testdata/%d/unsaved", testData.ID),
+				Detail:  detailUrl,
+				Save:    detailUrl + "/saved",
+				Unsaved: detailUrl + "/unsaved",
 			},
 		})
 	}
