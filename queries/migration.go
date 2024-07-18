@@ -15,6 +15,7 @@ const (
 		    actual_response JSONB NOT NULL,
 		    result_status INTEGER NOT NULL,
 		    is_saved BOOLEAN NOT NULL DEFAULT FALSE,
+		    response_time NUMERIC DEFAULT 0,
 		    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 		    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 		    deleted_at TIMESTAMP DEFAULT NULL
@@ -39,7 +40,6 @@ const (
 		CREATE TABLE IF NOT EXISTS test_records (
 			id BIGSERIAL PRIMARY KEY,
 			test_data_id BIGINT NOT NULL,
-			response_time NUMBER NOT NULL,
 			created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 			updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 			deleted_at TIMESTAMP DEFAULT NULL,
