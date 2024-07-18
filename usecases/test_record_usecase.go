@@ -90,6 +90,9 @@ func (t *testRecordUsecase) GetAllTestRecords(ctx context.Context) (result []*re
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test records`, err)
 	}
+	if len(testRecords) == 0 {
+		return nil, nil
+	}
 	customErrCh := make(chan *apperror.CustomError)
 	resultCh := make(chan []*responses.TestRecordListResponse)
 	wg := sync.WaitGroup{}

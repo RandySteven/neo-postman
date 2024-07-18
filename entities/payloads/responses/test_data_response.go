@@ -41,6 +41,8 @@ type (
 		ExpectedResponse TestDataExpectedResponse `json:"expected_response"`
 		ActualResponse   TestDataActualResponse   `json:"actual_response"`
 		ResultStatus     string                   `json:"result_status"`
+		RequestHeader    json.RawMessage          `json:"request_header"`
+		RequestBody      json.RawMessage          `json:"request_body"`
 		CreatedAt        time.Time                `json:"created_at"`
 	}
 

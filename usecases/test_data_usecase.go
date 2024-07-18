@@ -19,7 +19,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -64,6 +63,8 @@ func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *res
 			ExpectedResponseCode: testData.ExpectedResponseCode,
 			ExpectedResponse:     testData.ExpectedResponse,
 		},
+		RequestHeader: testData.RequestHeader,
+		RequestBody:   testData.RequestBody,
 		ActualResponse: responses.TestDataActualResponse{
 			ActualResponseCode: testData.ActualResponseCode,
 			ActualResponse:     testData.ActualResponse,
@@ -170,64 +171,27 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		if err != nil {
 			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to unmarshal response body`, err)
 		}
-	}
 
-	for testData.ResultStatus != enums.Unexpected {
-		log.Println("terejbak di looping")
-		if resp.StatusCode != request.ExpectedResponseCode {
+		// Compare actual response with expected response
+		if !compareJSON(testData.ActualResponse, request.ExpectedResponse) {
 			testData.ResultStatus = enums.Unexpected
-			break
 		} else {
 			testData.ResultStatus = enums.Expected
 		}
-
-		if request.ExpectedResponse != nil {
-			log.Println("emang ada expected_response ?")
-			expectedResponseMap := jsonToMap(request.ExpectedResponse)
-			actualResponseMap := jsonToMap(testData.ActualResponse)
-			for key, value := range expectedResponseMap {
-				if actualResponseMap[key] != value {
-					testData.ResultStatus = enums.Unexpected
-					break
-				}
-				testData.ResultStatus = enums.Expected
-			}
-		}
-
-		if testData.ResultStatus == enums.Expected {
-			break
-		}
 	}
+
 	testData.ActualResponseCode = resp.StatusCode
-	var (
-		resultCh    = make(chan *models.TestData, 1)
-		customErrCh = make(chan *apperror.CustomError, 1)
-		wg          sync.WaitGroup
-	)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		testData, err = t.testDataRepo.Save(ctx, testData)
-		if err != nil {
-			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
-			close(customErrCh)
-			close(resultCh)
-			return
-		}
-		resultCh <- testData
-		close(customErrCh)
-		close(resultCh)
-		return
-	}()
 
-	for customErr = range customErrCh {
-		return nil, customErr
+	// Save test data to database
+	savedTestData, err := t.testDataRepo.Save(ctx, testData)
+	if err != nil {
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
 	}
-	testData = <-resultCh
-	detailUrl := utils.DetailURL(enums.TestDataPrefix.ToString(), testData.ID)
+
+	detailUrl := utils.DetailURL(enums.TestDataPrefix.ToString(), savedTestData.ID)
 	result = &responses.TestDataResponse{
-		ID:           testData.ID,
-		ResultStatus: testData.ResultStatus.ToString(),
+		ID:           savedTestData.ID,
+		ResultStatus: savedTestData.ResultStatus.ToString(),
 		Links: struct {
 			Detail string `json:"detail"`
 			Saved  string `json:"saved"`
@@ -237,16 +201,39 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		},
 		ResponseTime: responseTime,
 	}
-	if testData.ResultStatus == enums.Unexpected {
-		result.ExpectedResponseCode = testData.ExpectedResponseCode
-		result.ActualResponseCode = testData.ActualResponseCode
-		result.ExpectedResponseBody = testData.ExpectedResponse
-		result.ActualResponseBody = testData.ActualResponse
+
+	if savedTestData.ResultStatus == enums.Unexpected {
+		result.ExpectedResponseCode = savedTestData.ExpectedResponseCode
+		result.ActualResponseCode = savedTestData.ActualResponseCode
+		result.ExpectedResponseBody = savedTestData.ExpectedResponse
+		result.ActualResponseBody = savedTestData.ActualResponse
 	}
+
 	end := time.Since(start)
 	log.Println("latency : ", end)
 
 	return result, nil
+}
+
+func compareJSON(actual, expected json.RawMessage) bool {
+	var actualData, expectedData map[string]interface{}
+	if err := json.Unmarshal(actual, &actualData); err != nil {
+		return false
+	}
+	if err := json.Unmarshal(expected, &expectedData); err != nil {
+		return false
+	}
+
+	if actualData["data"] != nil && expectedData["data"] != nil {
+		actualCaptureMethod := actualData["data"].(map[string]interface{})["captureMethod"]
+		expectedCaptureMethod := expectedData["data"].(map[string]interface{})["captureMethod"]
+
+		if actualCaptureMethod != expectedCaptureMethod {
+			return false
+		}
+	}
+
+	return true
 }
 
 func jsonToMap(something json.RawMessage) (result map[string]interface{}) {
