@@ -15,6 +15,7 @@ import (
 	"github.com/RandySteven/neo-postman/pkg/redis"
 	"github.com/RandySteven/neo-postman/pkg/yaml"
 	"github.com/RandySteven/neo-postman/utils"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -124,11 +125,19 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		ActualResponse:       nil,
 		ResultStatus:         enums.Error,
 	}
-	body, err := request.RequestBody.MarshalJSON()
-	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrBadRequest, `the request body is not valid`, err)
+	var (
+		req                  = &http.Request{}
+		reader io.ReadCloser = nil
+	)
+	if request.RequestBody != nil {
+		body, err := request.RequestBody.MarshalJSON()
+		if err != nil {
+			return nil, apperror.NewCustomError(apperror.ErrBadRequest, `the request body is not valid`, err)
+		}
+		reader = ioutil.NopCloser(bytes.NewBuffer(body))
 	}
-	req, err := http.NewRequestWithContext(ctx, request.Method, uri, ioutil.NopCloser(bytes.NewBuffer(body)))
+	log.Println("masuk header")
+	req, err = http.NewRequestWithContext(ctx, request.Method, uri, reader)
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to hit api`, err)
 	}
@@ -138,6 +147,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrBadRequest, `the request body is not valid`, err)
 	}
+	log.Println("header map ", headerMap)
 	for key, value := range headerMap {
 		req.Header.Add(key, value)
 	}
@@ -163,12 +173,16 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	}
 
 	for testData.ResultStatus != enums.Unexpected {
+		log.Println("terejbak di looping")
 		if resp.StatusCode != request.ExpectedResponseCode {
 			testData.ResultStatus = enums.Unexpected
 			break
+		} else {
+			testData.ResultStatus = enums.Expected
 		}
 
 		if request.ExpectedResponse != nil {
+			log.Println("emang ada expected_response ?")
 			expectedResponseMap := jsonToMap(request.ExpectedResponse)
 			actualResponseMap := jsonToMap(testData.ActualResponse)
 			for key, value := range expectedResponseMap {
