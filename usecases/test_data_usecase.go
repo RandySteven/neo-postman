@@ -199,14 +199,11 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 			Detail: detailUrl,
 			Saved:  detailUrl + "/saved",
 		},
-		ResponseTime: responseTime,
-	}
-
-	if savedTestData.ResultStatus == enums.Unexpected {
-		result.ExpectedResponseCode = savedTestData.ExpectedResponseCode
-		result.ActualResponseCode = savedTestData.ActualResponseCode
-		result.ExpectedResponseBody = savedTestData.ExpectedResponse
-		result.ActualResponseBody = savedTestData.ActualResponse
+		ResponseTime:         responseTime,
+		ExpectedResponseCode: savedTestData.ExpectedResponseCode,
+		ActualResponseCode:   savedTestData.ExpectedResponseCode,
+		ExpectedResponseBody: savedTestData.ExpectedResponse,
+		ActualResponseBody:   savedTestData.ActualResponse,
 	}
 
 	end := time.Since(start)
