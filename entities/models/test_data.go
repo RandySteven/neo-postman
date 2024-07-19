@@ -8,6 +8,7 @@ import (
 
 type TestData struct {
 	ID                   uint64
+	Host                 string
 	Method               string
 	URI                  string
 	Description          string

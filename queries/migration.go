@@ -5,6 +5,7 @@ const (
 		CREATE TABLE IF NOT EXISTS test_datas (
 		    id BIGSERIAL PRIMARY KEY,
 		    method VARCHAR NOT NULL,
+		    host VARCHAR NOT NULL,
 		    uri VARCHAR NOT NULL,
 		    description VARCHAR NOT NULL,
 		    request_header JSONB NOT NULL,
