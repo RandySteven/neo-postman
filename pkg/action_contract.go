@@ -1,8 +1,17 @@
 package pkg
 
 type (
-	YAMLActionContract     interface{}
-	RedisActionContract    interface{}
+	YAMLActionContract interface {
+		ReadYAML() ([]byte, error)
+	}
+
+	RedisActionContract interface {
+		ConnectToRedis() error
+	}
+
 	PostgresActionContract interface{}
-	JiraActionContract     interface{}
+
+	JiraActionContract interface {
+		CreateJiraTicket()
+	}
 )
