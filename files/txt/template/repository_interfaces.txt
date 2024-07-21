@@ -1,0 +1,9 @@
+package repositories_interfaces
+
+import (
+    \"github.com/RandySteven/neo-postman/entities/models\"
+)
+
+type %s interface {
+    Repositories[models.%s]
+}

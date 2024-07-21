@@ -1,0 +1,12 @@
+package repositories
+
+import (
+    repositories_interfaces \"github.com/RandySteven/neo-postman/interfaces/repositories\"
+    \"database/sql\"
+)
+
+type %s struct {
+    db *sql.DB
+}
+
+var _ repositories_interfaces.%s = &%s{}
