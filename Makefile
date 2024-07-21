@@ -13,6 +13,9 @@ drop:
 
 restart: drop migration run
 
+cli:
+	${gorun} ${cmd_folder}ruler
+
 run-docker:
 	docker compose up --build -d
 
