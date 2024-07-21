@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
 	"strings"
 )
 
@@ -21,7 +22,7 @@ func main() {
 			fmt.Scanf("%s", &model)
 			file = fmt.Sprintf("%s.go", strings.ToLower(model))
 			cli := fmt.Sprintf("nano ./entities/models/%s", file)
-			fmt.Println(cli)
+			exec.Command(cli)
 		}
 	}
 }
