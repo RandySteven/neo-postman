@@ -28,7 +28,7 @@ run-docker-migration:
 BINARY_NAME=ruler
 
 build-ruler:
-	go build -o $(BINARY_NAME) ./cmd/neo_post/ruler/main.go
+	go build -o $(BINARY_NAME) ./cmd/neo_post/ruler/*.go
 
 run-ruler: build-ruler
 	./$(BINARY_NAME) $(ARGS)
