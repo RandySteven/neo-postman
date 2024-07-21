@@ -1,0 +1,7 @@
+create models %s -p -r -u -h -q
+
+-p = payload
+-r = repositories
+-u = usecases
+-h = handlers
+-q = queries

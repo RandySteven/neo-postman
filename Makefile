@@ -24,3 +24,14 @@ stop-docker:
 
 run-docker-migration:
 	docker compose up --build -d neo-post-migration
+
+BINARY_NAME=ruler
+
+build-ruler:
+	go build -o $(BINARY_NAME) ./cmd/neo_post/ruler/main.go
+
+run-ruler: build-ruler
+	./$(BINARY_NAME) $(ARGS)
+
+clean-ruler:
+	rm -f $(BINARY_NAME)
