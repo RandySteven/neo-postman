@@ -52,7 +52,7 @@ func (t *testDataRepository) FindByID(ctx context.Context, id uint64) (result *m
 func (t *testDataRepository) Update(ctx context.Context, request *models.TestData) (result *models.TestData, err error) {
 	requestHeaderStr, requestBodyStr, expectedResponseStr, actualResponseStr := request.JsonRequest()
 	err = utils.Update[models.TestData](ctx, t.db, queries.UpdateTestData,
-		&request.Method, &request.URI, &request.Description, &requestHeaderStr,
+		&request.Method, &request.Host, &request.URI, &request.Description, &requestHeaderStr,
 		&requestBodyStr,
 		&request.ExpectedResponseCode, &expectedResponseStr,
 		&request.ActualResponseCode, &actualResponseStr, &request.ResultStatus, &request.IsSaved, &request.ID)

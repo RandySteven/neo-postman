@@ -19,12 +19,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
 type testDataUsecase struct {
-	testDataRepo repositories_interfaces.TestDataRepository
-	redis        *redis.RedisClient
+	testDataRepo   repositories_interfaces.TestDataRepository
+	testRecordRepo repositories_interfaces.TestRecordRepository
+	redis          *redis.RedisClient
 }
 
 func (t *testDataUsecase) AutoDeleteUnsavedRecord(ctx context.Context) (err error) {
@@ -36,16 +38,50 @@ func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result str
 	if err != nil {
 		return "", apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test data`, err)
 	}
-	if testData.IsSaved == true {
-		return "", apperror.NewCustomError(apperror.ErrBadRequest, `user try to save again`, fmt.Errorf("you already put this on record"))
+
+	var (
+		wg          sync.WaitGroup
+		customErrCh = make(chan *apperror.CustomError)
+	)
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		if testData.IsSaved == true {
+			customErrCh <- apperror.NewCustomError(apperror.ErrBadRequest, `user try to save again`, fmt.Errorf("you already put this on record"))
+			return
+		}
+		testData.IsSaved = true
+		testData, err = t.testDataRepo.Update(ctx, testData)
+		if err != nil {
+			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to save test data`, err)
+			return
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		_, err = t.testRecordRepo.Save(ctx, &models.TestRecord{TestDataID: testData.ID})
+		if err != nil {
+			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to save test record`, err)
+			return
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+		close(customErrCh)
+	}()
+
+	select {
+	case customErr = <-customErrCh:
+		return "", customErr
+	default:
+		result = "success to save test data"
+		return result, nil
 	}
-	testData.IsSaved = true
-	testData, err = t.testDataRepo.Update(ctx, testData)
-	if err != nil {
-		return "", apperror.NewCustomError(apperror.ErrInternalServer, `failed to save test data`, err)
-	}
-	result = "success to save test data"
-	return result, nil
 }
 
 func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *responses.TestDataDetail, customErr *apperror.CustomError) {
@@ -245,9 +281,10 @@ func jsonToMap(something json.RawMessage) (result map[string]interface{}) {
 
 var _ usecases_interfaces.TestDataUsecase = &testDataUsecase{}
 
-func NewTestDataUsecase(testDataRepo repositories_interfaces.TestDataRepository) *testDataUsecase {
+func NewTestDataUsecase(testDataRepo repositories_interfaces.TestDataRepository, testRecordRepo repositories_interfaces.TestRecordRepository) *testDataUsecase {
 	return &testDataUsecase{
-		testDataRepo: testDataRepo,
-		redis:        redis.NewRedis(),
+		testDataRepo:   testDataRepo,
+		testRecordRepo: testRecordRepo,
+		redis:          redis.NewRedis(),
 	}
 }
