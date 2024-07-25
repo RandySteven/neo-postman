@@ -14,7 +14,7 @@ type Usecases struct {
 
 func NewUsecases(repo *postgres.Repositories) *Usecases {
 	return &Usecases{
-		TestDataUsecase:   usecases.NewTestDataUsecase(repo.TestDataRepo),
+		TestDataUsecase:   usecases.NewTestDataUsecase(repo.TestDataRepo, repo.TestRecordRepo),
 		JiraIssueUsecase:  usecases.NewJiraIssueUsecase(repo.JiraIssueRepo),
 		TestRecordUsecase: usecases.NewTestRecordUsecase(repo.TestDataRepo, repo.TestRecordRepo),
 	}
