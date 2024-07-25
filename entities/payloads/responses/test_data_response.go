@@ -33,11 +33,12 @@ type (
 		} `json:"links"`
 	}
 
-	TestRecordDetail struct {
+	TestDataDetail struct {
 		ID               uint64                   `json:"id"`
 		Endpoint         string                   `json:"endpoint"`
 		Method           string                   `json:"method"`
 		Description      string                   `json:"description"`
+		IsSaved          bool                     `json:"is_saved"`
 		ExpectedResponse TestDataExpectedResponse `json:"expected_response"`
 		ActualResponse   TestDataActualResponse   `json:"actual_response"`
 		ResultStatus     string                   `json:"result_status"`

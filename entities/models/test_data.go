@@ -8,8 +8,8 @@ import (
 
 type TestData struct {
 	ID                   uint64
-	Host                 string
 	Method               string
+	Host                 string
 	URI                  string
 	Description          string
 	RequestHeader        json.RawMessage

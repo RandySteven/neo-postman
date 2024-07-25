@@ -48,15 +48,16 @@ func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result str
 	return result, nil
 }
 
-func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *responses.TestRecordDetail, customErr *apperror.CustomError) {
+func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *responses.TestDataDetail, customErr *apperror.CustomError) {
 	testData, err := t.testDataRepo.FindByID(ctx, id)
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get record`, err)
 	}
-	result = &responses.TestRecordDetail{
+	result = &responses.TestDataDetail{
 		ID:           testData.ID,
 		Description:  testData.Description,
-		Endpoint:     testData.URI[len("http://localhost:8080"):],
+		Endpoint:     testData.URI,
+		IsSaved:      testData.IsSaved,
 		Method:       testData.Method,
 		ResultStatus: testData.ResultStatus.ToString(),
 		ExpectedResponse: responses.TestDataExpectedResponse{
@@ -119,7 +120,8 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		Method:               request.Method,
 		Description:          request.Description,
 		RequestHeader:        request.RequestHeader,
-		URI:                  uri,
+		Host:                 baseUrl.UrlList[request.URLKey],
+		URI:                  request.Path,
 		RequestBody:          request.RequestBody,
 		ExpectedResponse:     request.ExpectedResponse,
 		ExpectedResponseCode: request.ExpectedResponseCode,

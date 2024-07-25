@@ -24,7 +24,7 @@ func (t *testDataRepository) DeletedUnsavedTestData(ctx context.Context) (err er
 func (t *testDataRepository) Save(ctx context.Context, request *models.TestData) (result *models.TestData, err error) {
 	requestHeaderStr, requestBodyStr, expectedResponseStr, actualResponseStr := request.JsonRequest()
 	id, err := utils.Save[models.TestData](ctx, t.db, queries.InsertTestData,
-		&request.Method, &request.URI, &request.Description, &requestHeaderStr,
+		&request.Method, &request.Host, &request.URI, &request.Description, &requestHeaderStr,
 		&requestBodyStr,
 		&request.ExpectedResponseCode, &expectedResponseStr,
 		&request.ActualResponseCode, &actualResponseStr, &request.ResultStatus, &request.ResponseTime)

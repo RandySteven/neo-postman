@@ -45,7 +45,7 @@ clean-main:
 refresh-main: clean-main build-main run-main
 
 build-droper:
-	${gobuild} -o $(BIN)/$(DROPER_BIN) ./cmd/neo-post/drop/
+	${gobuild} -o $(BIN)/$(DROPER_BIN) ./cmd/neo_post/drop/*.go
 
 clean-droper:
 	rm -f ./$(BIN)/$(DROPER_BIN)
@@ -56,7 +56,7 @@ run-droper:
 refresh-droper: clean-droper build-droper run-droper
 
 build-migrator:
-	${gobuild} -o $(BIN)/$(MIGRATOR_BIN) ./cmd/neo-post/migration/
+	${gobuild} -o $(BIN)/$(MIGRATOR_BIN) ./cmd/neo_post/migration/*.go
 
 run-migrator:
 	./$(BIN)/$(MIGRATOR_BIN)
@@ -77,3 +77,4 @@ clean-ruler:
 
 refresh-ruler: clean-ruler build-ruler run-ruler
 
+build-app: build-migrator build-droper build-ruler build-main
