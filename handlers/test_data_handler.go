@@ -38,6 +38,8 @@ func (t *TestDataHandler) SaveRecord(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *TestDataHandler) UnsavedRecord(w http.ResponseWriter, r *http.Request) {
+	utils.ContentType(w, enums.ContentTypeJSON)
+
 }
 
 func (t *TestDataHandler) GetAllRecords(w http.ResponseWriter, r *http.Request) {

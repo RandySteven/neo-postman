@@ -29,6 +29,46 @@ type testDataUsecase struct {
 	redis          *redis.RedisClient
 }
 
+func (t *testDataUsecase) UnsavedRecord(ctx context.Context, id uint64) (result string, customErr *apperror.CustomError) {
+	testData, err := t.testDataRepo.FindByID(ctx, id)
+	if err != nil {
+		return "", apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test data`, err)
+	}
+
+	var (
+		wg          sync.WaitGroup
+		customErrCh = make(chan *apperror.CustomError)
+	)
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		if testData.IsSaved == false {
+			customErrCh <- apperror.NewCustomError(apperror.ErrBadRequest, `user try to deleted again`, fmt.Errorf("you haven't put this on record"))
+			return
+		}
+		testData.IsSaved = false
+		testData, err = t.testDataRepo.Update(ctx, testData)
+		if err != nil {
+			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to unsaved test data`, err)
+			return
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+	}()
+
+	go func() {
+		defer wg.Done()
+		close(customErrCh)
+	}()
+
+	return
+}
+
 func (t *testDataUsecase) AutoDeleteUnsavedRecord(ctx context.Context) (err error) {
 	return t.testDataRepo.DeletedUnsavedTestData(ctx)
 }
