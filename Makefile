@@ -78,3 +78,27 @@ clean-ruler:
 refresh-ruler: clean-ruler build-ruler run-ruler
 
 build-app: build-migrator build-droper build-ruler build-main
+
+MOCKERY := mockery
+OUTPUT_DIR := ./mocks
+BUILD_TAG := "// +build !testmock"
+
+.PHONY: all mocks add-build-tags
+
+gen-mocks: mocks add-build-tags
+
+mocks:
+	@echo "Generating mocks..."
+	$(MOCKERY) --all --output=$(OUTPUT_DIR)
+
+add-build-tags:
+	@echo "Adding build tags..."
+	@for file in $(OUTPUT_DIR)/*.go; do \
+	    if [ -f $$file ]; then \
+	        echo "$(BUILD_TAG)\n\n$$(cat $$file)" > $$file; \
+	    fi \
+	done
+
+
+run-test:
+	go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out
