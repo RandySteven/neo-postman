@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"github.com/RandySteven/neo-postman/entities/models"
 	"github.com/RandySteven/neo-postman/enums"
-	"github.com/RandySteven/neo-postman/mocks"
+	"github.com/RandySteven/neo-postman/pkg/postgres"
+	"github.com/RandySteven/neo-postman/repositories"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -13,11 +14,12 @@ import (
 
 func TestSave(t *testing.T) {
 	t.Run("success to save", func(t *testing.T) {
-		testDataRepo := new(mocks.TestDataRepository)
 		ctx := context.Background()
+		db, _ := postgres.TestDB()
+		testDataRepo := repositories.NewTestDataRepository(db)
 		testData := &models.TestData{
 			Method:               "POST",
-			Host:                 os.Getenv("HOST_ENV_VARIABLE"), // Replace with actual environment variable name
+			Host:                 os.Getenv("HOST_ENV_VARIABLE"),
 			URI:                  "/test",
 			Description:          "test mock",
 			RequestHeader:        json.RawMessage(`{"Content-Type": "application/json"}`),
@@ -28,13 +30,7 @@ func TestSave(t *testing.T) {
 			ResultStatus:         enums.Expected,
 		}
 
-		testDataRepo.On("Save", ctx, testData).Return(testData, nil).Once()
-
-		result, err := testDataRepo.Save(ctx, testData)
-
-		assert.NoError(t, err)
-		assert.Equal(t, testData, result)
-
-		testDataRepo.AssertExpectations(t)
+		testData, _ = testDataRepo.Save(ctx, testData)
+		assert.NotEqual(t, 0, testData.ID)
 	})
 }

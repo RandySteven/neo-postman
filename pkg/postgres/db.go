@@ -11,6 +11,7 @@ import (
 	_ "github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
 	"log"
+	"os"
 	"time"
 )
 
@@ -51,6 +52,28 @@ func NewRepositories(config *config.Config) (*Repositories, error) {
 		TestRecordRepo: repositories.NewTestRecordRepository(db),
 		db:             db,
 	}, nil
+}
+
+func TestDB() (*sql.DB, error) {
+	conn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=require",
+		os.Getenv("TEST_DATABASE_USER"),
+		os.Getenv("TEST_DATABASE_PASS"),
+		os.Getenv("TEST_DATABASE_HOST"),
+		os.Getenv("TEST_DATABASE_PORT"),
+		os.Getenv("TEST_DATABASE_NAME"),
+	)
+	db, err := sql.Open("postgres", conn)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func initTableMigration() []queries.MigrationQuery {
