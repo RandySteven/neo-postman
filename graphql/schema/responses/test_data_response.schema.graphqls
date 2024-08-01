@@ -1,0 +1,68 @@
+scalar JSON
+scalar Duration
+scalar Time
+
+type Links {
+    detail: String!
+    saved: String!
+}
+
+type TestDataResponse {
+    id: ID!
+    resultStatus: String!
+    expectedResponseCode: Int
+    actualResponseCode: Int
+    expectedResponseBody: JSON
+    actualResponseBody: JSON
+    links: Links!
+    responseTime: Duration!
+}
+
+type TestRecordList {
+    id: ID!
+    description: String!
+    resultStatus: String!
+    createdAt: Time!
+    isSaved: Boolean!
+    links: TestRecordLinks!
+}
+
+type TestRecordLinks {
+    detail: String!
+    save: String!
+    unsaved: String!
+}
+
+type TestDataDetail {
+    id: ID!
+    endpoint: String!
+    method: String!
+    description: String!
+    isSaved: Boolean!
+    expectedResponse: TestDataExpectedResponse!
+    actualResponse: TestDataActualResponse!
+    resultStatus: String!
+    requestHeader: JSON!
+    requestBody: JSON!
+    createdAt: Time!
+}
+
+type TestDataExpectedResponse {
+    responseCode: Int!
+    responseBody: JSON!
+}
+
+type TestDataActualResponse {
+    responseCode: Int!
+    responseBody: JSON!
+}
+
+type Query {
+    getAllTestDatas: [TestRecordList!]!
+}
+
+type Mutation {
+    createTestData(input: TestDataRequest!): TestDataResponse
+    getTestRecordList(id: ID!): TestRecordList
+    getTestDataDetail(id: ID!): TestDataDetail
+}

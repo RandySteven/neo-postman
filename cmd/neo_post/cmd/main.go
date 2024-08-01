@@ -51,6 +51,7 @@ func main() {
 	handlers := apps.NewHandlers(repositories)
 	r := mux.NewRouter()
 	r = apps.RegisterMiddleware(r)
+
 	log.Println("UDAH KE RUN WA")
 	handlers.InitRouter(r)
 	config.Run(r)

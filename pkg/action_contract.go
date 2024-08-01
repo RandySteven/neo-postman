@@ -1,6 +1,9 @@
 package pkg
 
 type (
+	GraphqlActionContract interface {
+	}
+
 	YAMLActionContract interface {
 		ReadYAML() ([]byte, error)
 	}

@@ -1,0 +1,11 @@
+input TestDataRequest {
+    method: String!
+    urlKey: String!
+    path: String!
+    description: String
+    requestHeader: JSON!
+    requestBody: JSON!
+    expectedResponseCode: Int!
+    expectedResponse: JSON!
+}
+
