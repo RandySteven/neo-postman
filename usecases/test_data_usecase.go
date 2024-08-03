@@ -75,6 +75,13 @@ func (t *testDataUsecase) AutoDeleteUnsavedRecord(ctx context.Context) (err erro
 }
 
 func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result string, customErr *apperror.CustomError) {
+	defer func(testDataCache caches_interfaces.TestDataCache, ctx context.Context, key string) {
+		err := testDataCache.Del(ctx, key)
+		if err != nil {
+			return
+		}
+	}(t.testDataCache, ctx, "all.test_datas")
+
 	testData, err := t.testDataRepo.FindByID(ctx, id)
 	if err != nil {
 		return "", apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test data`, err)
@@ -159,10 +166,18 @@ func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *res
 }
 
 func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*responses.TestRecordList, customErr *apperror.CustomError) {
-	testDatas, err := t.testDataRepo.FindAll(ctx)
+	testDatas, err := t.testDataCache.GetMultiData(ctx)
 	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get all records`, err)
+		testDatas, err = t.testDataRepo.FindAll(ctx)
+		if err != nil {
+			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get all records`, err)
+		}
+
+		if err = t.testDataCache.SetMultiData(ctx, testDatas); err != nil {
+			return nil, apperror.NewCustomError(apperror.ErrInternalServer, "failed to save test data cache", err)
+		}
 	}
+
 	for _, testData := range testDatas {
 		detailUrl := utils.DetailURL(enums.TestDataPrefix.ToString(), testData.ID)
 		result = append(result, &responses.TestRecordList{
