@@ -57,8 +57,8 @@ func main() {
 		return
 	}
 
-	scheduler := scheduler.NewScheduler(*repositories)
-	err = scheduler.RunAllJob(ctx)
+	schedulerAct := scheduler.NewScheduler(*repositories, *caches)
+	err = schedulerAct.RunAllJob(ctx)
 	if err != nil {
 		log.Fatal(err)
 		return

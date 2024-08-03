@@ -4,6 +4,7 @@ import (
 	"context"
 	schedulers_interfaces "github.com/RandySteven/neo-postman/interfaces/schedulers"
 	"github.com/RandySteven/neo-postman/pkg/postgres"
+	"github.com/RandySteven/neo-postman/pkg/redis"
 	"github.com/RandySteven/neo-postman/schedulers"
 	"github.com/robfig/cron"
 	"time"
@@ -57,13 +58,13 @@ func (s *scheduler) runScheduler(ctx context.Context, spec string, schedulerFunc
 
 var _ Job = &scheduler{}
 
-func NewScheduler(repo postgres.Repositories) *scheduler {
+func NewScheduler(repo postgres.Repositories, cache redis.RedisClient) *scheduler {
 	jakartaTime, _ := time.LoadLocation("Asia/Jakarta")
 	return &scheduler{
 		scheduler: cron.NewWithLocation(jakartaTime),
 		schedulerDependency: SchedulersDependency{
 			testReportScheduler: schedulers.NewTestRecordScheduler(repo.TestRecordRepo),
-			testDataScheduler:   schedulers.NewTestDataScheduler(repo.TestDataRepo),
+			testDataScheduler:   schedulers.NewTestDataScheduler(repo.TestDataRepo, cache.TestDataCache),
 		},
 	}
 }
