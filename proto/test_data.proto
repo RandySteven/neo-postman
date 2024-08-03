@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "./proto";
+
+message CustomError {
+
+}
+
+message TestDataRequest {
+  string method = 1;
+  string url_key = 2;
+  string path = 3;
+  string description = 4;
+  bytes request_header = 5;
+  bytes request_body = 6;
+  int32 expected_response_code = 7;
+  bytes expected_response = 8;
+}
+
+message Links {
+  string detail = 1;
+  string saved = 2;
+}
+
+message TestDataResponse {
+  uint64 id = 1;
+  string result_status = 2;
+  int32 expected_response_code = 3;
+  int32 actual_response_code = 4;
+  bytes expected_response_body = 5;
+  bytes actual_response_body = 6;
+
+  message Links {
+    string detail = 1;
+    string saved = 2;
+  }
+  Links links = 7;
+
+  google.protobuf.Duration response_time = 8;
+}
+
+message TestRecordList {
+  uint64 id = 1;
+  string description = 2;
+  string result_status = 3;
+  google.protobuf.Timestamp created_at = 4;
+  bool is_saved = 5;
+
+  message Links {
+    string detail = 1;
+    string save = 2;
+    string unsaved = 3;
+  }
+  Links links = 6;
+}
+
+message TestDataDetail {
+  uint64 id = 1;
+  string endpoint = 2;
+  string method = 3;
+  string description = 4;
+  bool is_saved = 5;
+
+  message TestDataExpectedResponse {
+    int32 response_code = 1;
+    bytes response_body = 2;
+  }
+  TestDataExpectedResponse expected_response = 6;
+
+  message TestDataActualResponse {
+    int32 response_code = 1;
+    bytes response_body = 2;
+  }
+  TestDataActualResponse actual_response = 7;
+
+  string result_status = 8;
+  bytes request_header = 9;
+  bytes request_body = 10;
+  google.protobuf.Timestamp created_at = 11;
+}
+
+message Empty {
+
+}
+
+service TestDataService {
+  rpc CreateAPITest(TestDataRequest) returns (TestDataResponse);
+  rpc GetAllRecords(Empty) returns (TestRecordListResponse);
+  rpc GetRecord(GetRecordRequest) returns (TestDataDetail);
+  rpc SaveRecord(SaveRecordRequest) returns (SaveRecordResponse);
+  rpc UnsavedRecord(UnsavedRecordRequest) returns (UnsavedRecordResponse);
+}
+
+message GetRecordRequest {
+  uint64 id = 1;
+}
+
+message SaveRecordRequest {
+  uint64 id = 1;
+}
+
+message SaveRecordResponse {
+  string result = 1;
+  CustomError custom_err = 2;
+}
+
+message UnsavedRecordRequest {
+  uint64 id = 1;
+}
+
+message UnsavedRecordResponse {
+  string result = 1;
+  CustomError custom_err = 2;
+}
+
+message AutoDeleteUnsavedRecordResponse {
+  string result = 1;
+  CustomError custom_err = 2;
+}
+
+message TestRecordListResponse {
+  repeated TestRecordList records = 1;
+  CustomError custom_err = 2;
+}
