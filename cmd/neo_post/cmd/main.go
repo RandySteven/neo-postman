@@ -5,6 +5,7 @@ import (
 	"github.com/RandySteven/neo-postman/apps"
 	"github.com/RandySteven/neo-postman/pkg/config"
 	"github.com/RandySteven/neo-postman/pkg/postgres"
+	"github.com/RandySteven/neo-postman/pkg/redis"
 	"github.com/RandySteven/neo-postman/pkg/scheduler"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -41,6 +42,12 @@ func main() {
 		return
 	}
 
+	caches, err := redis.NewRedis(config)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
 	scheduler := scheduler.NewScheduler(*repositories)
 	err = scheduler.RunAllJob(ctx)
 	if err != nil {
@@ -48,7 +55,7 @@ func main() {
 		return
 	}
 
-	handlers := apps.NewHandlers(repositories)
+	handlers := apps.NewHandlers(repositories, caches)
 	r := mux.NewRouter()
 	r = apps.RegisterMiddleware(r)
 

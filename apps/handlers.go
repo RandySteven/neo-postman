@@ -4,6 +4,7 @@ import (
 	"github.com/RandySteven/neo-postman/handlers"
 	handlers_interfaces "github.com/RandySteven/neo-postman/interfaces/handlers"
 	"github.com/RandySteven/neo-postman/pkg/postgres"
+	"github.com/RandySteven/neo-postman/pkg/redis"
 )
 
 type Handlers struct {
@@ -13,7 +14,7 @@ type Handlers struct {
 	TestRecordHandler handlers_interfaces.TestRecordHandler
 }
 
-func NewHandlers(repo *postgres.Repositories) *Handlers {
+func NewHandlers(repo *postgres.Repositories, cache *redis.RedisClient) *Handlers {
 	usecases := NewUsecases(repo)
 	return &Handlers{
 		TestDataHandler:   handlers.NewTestDataHandler(usecases.TestDataUsecase),
