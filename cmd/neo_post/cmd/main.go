@@ -10,6 +10,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func init() {
@@ -67,5 +70,14 @@ func main() {
 
 	log.Println("UDAH KE RUN WA")
 	handlers.InitRouter(r)
-	config.Run(r)
+
+	go config.Run(r)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	if err = caches.ClearCache(ctx); err != nil {
+		log.Fatal(err)
+		return
+	}
 }

@@ -41,3 +41,11 @@ func (r *RedisClient) Ping(ctx context.Context) error {
 	log.Println(result)
 	return nil
 }
+
+func (r *RedisClient) ClearCache(ctx context.Context) error {
+	err := r.client.FlushAll(ctx).Err()
+	if err != nil {
+		return fmt.Errorf("failed to clear cache: %w", err)
+	}
+	return nil
+}
