@@ -31,6 +31,12 @@ type testDataUsecase struct {
 }
 
 func (t *testDataUsecase) UnsavedRecord(ctx context.Context, id uint64) (result string, customErr *apperror.CustomError) {
+	defer func(testDataCache caches_interfaces.TestDataCache, ctx context.Context, key string) {
+		err := testDataCache.Del(ctx, key)
+		if err != nil {
+			return
+		}
+	}(t.testDataCache, ctx, strconv.Itoa(int(id)))
 	testData, err := t.testDataRepo.FindByID(ctx, id)
 	if err != nil {
 		return "", apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test data`, err)
@@ -80,7 +86,7 @@ func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result str
 		if err != nil {
 			return
 		}
-	}(t.testDataCache, ctx, "all.test_datas")
+	}(t.testDataCache, ctx, strconv.Itoa(int(id)))
 
 	testData, err := t.testDataRepo.FindByID(ctx, id)
 	if err != nil {
@@ -201,6 +207,11 @@ func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*response
 }
 
 func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.TestDataRequest) (result *responses.TestDataResponse, customErr *apperror.CustomError) {
+	defer func(ctx context.Context, key string) {
+		if err := t.testDataCache.Del(ctx, key); err != nil {
+			return
+		}
+	}(ctx, "all.test_datas")
 	start := time.Now()
 	baseUrl, err := yaml.ReadBaseURLYAML()
 	if err != nil {
