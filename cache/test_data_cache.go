@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/RandySteven/neo-postman/entities/models"
 	"github.com/RandySteven/neo-postman/enums"
 	caches_interfaces "github.com/RandySteven/neo-postman/interfaces/caches"
@@ -17,16 +18,19 @@ func (t *testDataCache) Set(ctx context.Context, key string, value *models.TestD
 	return t.client.Set(ctx, key, value, enums.CacheDuration).Err()
 }
 
-func (t *testDataCache) Get(ctx context.Context, key string) (value *models.TestData, ok bool) {
+func (t *testDataCache) Get(ctx context.Context, key string) (value *models.TestData, err error) {
 	val, err := t.client.Get(ctx, key).Bytes()
 	if err != nil {
-		return nil, false
+		if errors.Is(err, redis.Nil) {
+			return nil, nil
+		}
+		return nil, err
 	}
 	var testData models.TestData
-	if err := json.Unmarshal(val, &testData); err != nil {
-		return nil, false
+	if err = json.Unmarshal(val, &testData); err != nil {
+		return nil, err
 	}
-	return &testData, true
+	return &testData, nil
 }
 
 func (t *testDataCache) Del(ctx context.Context, key string) (err error) {

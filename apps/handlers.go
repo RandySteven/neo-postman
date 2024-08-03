@@ -15,7 +15,7 @@ type Handlers struct {
 }
 
 func NewHandlers(repo *postgres.Repositories, cache *redis.RedisClient) *Handlers {
-	usecases := NewUsecases(repo)
+	usecases := NewUsecases(repo, cache)
 	return &Handlers{
 		TestDataHandler:   handlers.NewTestDataHandler(usecases.TestDataUsecase),
 		JiraIssueHandler:  handlers.NewJiraIssueHandler(usecases.JiraIssueUsecase),

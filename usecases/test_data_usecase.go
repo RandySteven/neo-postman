@@ -10,15 +10,16 @@ import (
 	"github.com/RandySteven/neo-postman/entities/payloads/requests"
 	"github.com/RandySteven/neo-postman/entities/payloads/responses"
 	"github.com/RandySteven/neo-postman/enums"
+	caches_interfaces "github.com/RandySteven/neo-postman/interfaces/caches"
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
-	"github.com/RandySteven/neo-postman/pkg/redis"
 	"github.com/RandySteven/neo-postman/pkg/yaml"
 	"github.com/RandySteven/neo-postman/utils"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -26,7 +27,7 @@ import (
 type testDataUsecase struct {
 	testDataRepo   repositories_interfaces.TestDataRepository
 	testRecordRepo repositories_interfaces.TestRecordRepository
-	redis          *redis.RedisClient
+	testDataCache  caches_interfaces.TestDataCache
 }
 
 func (t *testDataUsecase) UnsavedRecord(ctx context.Context, id uint64) (result string, customErr *apperror.CustomError) {
@@ -125,9 +126,17 @@ func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result str
 }
 
 func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *responses.TestDataDetail, customErr *apperror.CustomError) {
-	testData, err := t.testDataRepo.FindByID(ctx, id)
+	testData, err := t.testDataCache.Get(ctx, strconv.Itoa(int(id)))
+	if err != nil {
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test data cache`, err)
+	}
+	testData, err = t.testDataRepo.FindByID(ctx, id)
 	if err != nil {
 		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get record`, err)
+	}
+	err = t.testDataCache.Set(ctx, strconv.Itoa(int(id)), testData)
+	if err != nil {
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to save test data cache`, err)
 	}
 	result = &responses.TestDataDetail{
 		ID:           testData.ID,
@@ -321,10 +330,14 @@ func jsonToMap(something json.RawMessage) (result map[string]interface{}) {
 
 var _ usecases_interfaces.TestDataUsecase = &testDataUsecase{}
 
-func NewTestDataUsecase(testDataRepo repositories_interfaces.TestDataRepository, testRecordRepo repositories_interfaces.TestRecordRepository) *testDataUsecase {
+func NewTestDataUsecase(
+	testDataRepo repositories_interfaces.TestDataRepository,
+	testRecordRepo repositories_interfaces.TestRecordRepository,
+	testDataCache caches_interfaces.TestDataCache,
+) *testDataUsecase {
 	return &testDataUsecase{
 		testDataRepo:   testDataRepo,
 		testRecordRepo: testRecordRepo,
-		redis:          redis.NewRedis(),
+		testDataCache:  testDataCache,
 	}
 }
