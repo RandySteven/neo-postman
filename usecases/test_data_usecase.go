@@ -128,15 +128,13 @@ func (t *testDataUsecase) SaveRecord(ctx context.Context, id uint64) (result str
 func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *responses.TestDataDetail, customErr *apperror.CustomError) {
 	testData, err := t.testDataCache.Get(ctx, strconv.Itoa(int(id)))
 	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get test data cache`, err)
-	}
-	testData, err = t.testDataRepo.FindByID(ctx, id)
-	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get record`, err)
-	}
-	err = t.testDataCache.Set(ctx, strconv.Itoa(int(id)), testData)
-	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to save test data cache`, err)
+		testData, err = t.testDataRepo.FindByID(ctx, id)
+		if err != nil {
+			return nil, apperror.NewCustomError(apperror.ErrInternalServer, "failed to get record", err)
+		}
+		if err = t.testDataCache.Set(ctx, strconv.Itoa(int(id)), testData); err != nil {
+			return nil, apperror.NewCustomError(apperror.ErrInternalServer, "failed to save test data cache", err)
+		}
 	}
 	result = &responses.TestDataDetail{
 		ID:           testData.ID,

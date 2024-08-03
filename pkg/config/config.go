@@ -24,10 +24,13 @@ type (
 		} `yaml:"postgres"`
 
 		Redis struct {
-			Host     string `yaml:"host"`
-			Port     string `yaml:"port"`
-			Password string `yaml:"password"`
-			DB       int    `yaml:"db"`
+			Host          string `yaml:"host"`
+			Port          string `yaml:"port"`
+			MinIddleConns int    `yaml:"minIddleConns"`
+			PoolSize      int    `yaml:"poolSize"`
+			PoolTimeout   int    `yaml:"poolTimeout"`
+			Password      string `yaml:"password"`
+			DB            int    `yaml:"db"`
 		} `yaml:"redis"`
 	}
 )

@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"github.com/RandySteven/neo-postman/entities/models"
 	"github.com/RandySteven/neo-postman/enums"
 	caches_interfaces "github.com/RandySteven/neo-postman/interfaces/caches"
@@ -15,20 +15,23 @@ type testDataCache struct {
 }
 
 func (t *testDataCache) Set(ctx context.Context, key string, value *models.TestData) (err error) {
-	return t.client.Set(ctx, key, value, enums.CacheDuration).Err()
+	key = fmt.Sprintf("models.test_data.%s", key)
+	jsonData, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("failed to marshal test data: %w", err)
+	}
+	return t.client.Set(ctx, key, jsonData, enums.CacheDuration).Err()
 }
 
 func (t *testDataCache) Get(ctx context.Context, key string) (value *models.TestData, err error) {
+	key = fmt.Sprintf("models.test_data.%s", key)
 	val, err := t.client.Get(ctx, key).Bytes()
 	if err != nil {
-		if errors.Is(err, redis.Nil) {
-			return nil, nil
-		}
-		return nil, err
+		return nil, fmt.Errorf("failed to get record: %w", err)
 	}
 	var testData models.TestData
 	if err = json.Unmarshal(val, &testData); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal test data: %w", err)
 	}
 	return &testData, nil
 }

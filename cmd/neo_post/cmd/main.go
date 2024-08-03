@@ -48,6 +48,12 @@ func main() {
 		return
 	}
 
+	err = caches.Ping(ctx)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
 	scheduler := scheduler.NewScheduler(*repositories)
 	err = scheduler.RunAllJob(ctx)
 	if err != nil {

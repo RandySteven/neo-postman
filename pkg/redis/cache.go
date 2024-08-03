@@ -2,11 +2,13 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"github.com/RandySteven/neo-postman/cache"
 	caches_interfaces "github.com/RandySteven/neo-postman/interfaces/caches"
 	"github.com/RandySteven/neo-postman/pkg/config"
 	"github.com/go-redis/redis/v8"
 	"log"
+	"time"
 )
 
 type RedisClient struct {
@@ -15,10 +17,15 @@ type RedisClient struct {
 }
 
 func NewRedis(config *config.Config) (*RedisClient, error) {
+	addr := fmt.Sprintf("%s:%s", config.Redis.Host, config.Redis.Port)
+	log.Println("connecting to redis : ", addr)
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
+		Addr:         addr,
+		Password:     "",
+		MinIdleConns: config.Redis.MinIddleConns,
+		PoolSize:     config.Redis.PoolSize,
+		PoolTimeout:  time.Duration(config.Redis.PoolTimeout) * time.Second,
+		DB:           0,
 	})
 	return &RedisClient{
 		TestDataCache: cache.NewTestDataCache(client),
