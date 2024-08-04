@@ -2,10 +2,8 @@ package cache
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/RandySteven/neo-postman/entities/models"
-	"github.com/RandySteven/neo-postman/enums"
 	caches_interfaces "github.com/RandySteven/neo-postman/interfaces/caches"
 	"github.com/RandySteven/neo-postman/utils"
 	"github.com/go-redis/redis/v8"
@@ -17,28 +15,12 @@ type testDataCache struct {
 
 func (t *testDataCache) SetMultiData(ctx context.Context, values []*models.TestData) error {
 	key := "all.test_datas"
-	jsonData, err := json.Marshal(values)
-	if err != nil {
-		return fmt.Errorf("failed to marshal test data: %w", err)
-	}
-	err = t.client.Set(ctx, key, jsonData, enums.CacheDuration).Err()
-	if err != nil {
-		return fmt.Errorf("set err: %v", err)
-	}
-	return nil
+	return utils.SetMultiple[models.TestData](ctx, t.client, key, values)
 }
 
 func (t *testDataCache) GetMultiData(ctx context.Context) (values []*models.TestData, err error) {
 	key := "all.test_datas"
-	val, err := t.client.Get(ctx, key).Bytes()
-	if err != nil {
-		return nil, fmt.Errorf("get err: %v", err)
-	}
-	err = json.Unmarshal(val, &values)
-	if err != nil {
-		return nil, fmt.Errorf("json unmarshal err: %v", err)
-	}
-	return values, nil
+	return utils.GetMultiple[models.TestData](ctx, t.client, key)
 }
 
 func (t *testDataCache) Refresh(ctx context.Context, key string, update any) (value any, err error) {
