@@ -14,6 +14,7 @@ import (
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
 	"github.com/RandySteven/neo-postman/pkg/yaml"
+	"github.com/RandySteven/neo-postman/queries"
 	"github.com/RandySteven/neo-postman/utils"
 	"io"
 	"io/ioutil"
@@ -171,7 +172,7 @@ func (t *testDataUsecase) GetRecord(ctx context.Context, id uint64) (result *res
 	return result, nil
 }
 
-func (t *testDataUsecase) GetAllRecords(ctx context.Context) (result []*responses.TestRecordList, customErr *apperror.CustomError) {
+func (t *testDataUsecase) GetAllRecords(ctx context.Context, query *queries.QueryParam) (result []*responses.TestRecordList, customErr *apperror.CustomError) {
 	testDatas, err := t.testDataCache.GetMultiData(ctx)
 	if err != nil {
 		testDatas, err = t.testDataRepo.FindAll(ctx)
