@@ -21,6 +21,8 @@ type (
 	QueryParam struct {
 		Params    map[string]Param
 		Separator string
+		Page      int
+		Limit     int
 	}
 )
 
