@@ -1,9 +1,11 @@
 package queries
 
 const (
-	AND = `AND`
-	OR  = `OR`
-	IN  = `IN`
+	AND   = `AND`
+	OR    = `OR`
+	IN    = `IN`
+	NOT   = `NOT`
+	EQUAL = `=`
 )
 
 type (
@@ -17,7 +19,8 @@ type (
 	}
 
 	QueryParam struct {
-		Params map[string]Param
+		Params    map[string]Param
+		Separator string
 	}
 )
 
