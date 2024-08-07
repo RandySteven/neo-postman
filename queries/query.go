@@ -1,9 +1,24 @@
 package queries
 
+const (
+	AND = `AND`
+	OR  = `OR`
+	IN  = `IN`
+)
+
 type (
 	MigrationQuery string
 	DropQuery      string
 	GoQuery        string
+
+	Param struct {
+		Operator string
+		Value    interface{}
+	}
+
+	QueryParam struct {
+		Params map[string]Param
+	}
 )
 
 func (q MigrationQuery) ToString() string {
