@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"github.com/RandySteven/neo-postman/apperror"
 	"github.com/RandySteven/neo-postman/entities/models"
+	"github.com/RandySteven/neo-postman/entities/payloads/params"
 	"github.com/RandySteven/neo-postman/entities/payloads/requests"
 	"github.com/RandySteven/neo-postman/entities/payloads/responses"
 	"github.com/RandySteven/neo-postman/enums"
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
-	"github.com/RandySteven/neo-postman/queries"
 	"github.com/RandySteven/neo-postman/utils"
 	"log"
 	"sync"
@@ -85,7 +85,7 @@ func (t *testRecordUsecase) CreateTestRecord(ctx context.Context, request *reque
 	}
 }
 
-func (t *testRecordUsecase) GetAllTestRecords(ctx context.Context, query *queries.QueryParam) (result []*responses.TestRecordListResponse, customErr *apperror.CustomError) {
+func (t *testRecordUsecase) GetAllTestRecords(ctx context.Context, params *params.TestRecordParam) (result []*responses.TestRecordListResponse, customErr *apperror.CustomError) {
 	startTime := time.Now()
 	testRecords, err := t.testRecordRepo.FindAll(ctx)
 	if err != nil {

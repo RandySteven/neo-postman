@@ -13,7 +13,7 @@ type testDataResolver struct {
 }
 
 func (t *testDataResolver) GetAllTestDatas(ctx context.Context) (result []*responses.TestRecordList, customErr *apperror.CustomError) {
-	return t.usecase.GetAllRecords(ctx)
+	return t.usecase.GetAllRecords(ctx, nil)
 }
 
 var _ resolvers_interfaces.TestDataResolver = &testDataResolver{}
