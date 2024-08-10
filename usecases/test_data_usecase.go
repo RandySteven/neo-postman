@@ -31,6 +31,11 @@ type testDataUsecase struct {
 	testDataCache  caches_interfaces.TestDataCache
 }
 
+func (t *testDataUsecase) SearchHistory(ctx context.Context, query string) (result *responses.TestDataDetail, customErr *apperror.CustomError) {
+
+	return
+}
+
 func (t *testDataUsecase) UnsavedRecord(ctx context.Context, id uint64) (result string, customErr *apperror.CustomError) {
 	defer func(testDataCache caches_interfaces.TestDataCache, ctx context.Context, key string) {
 		err := testDataCache.Del(ctx, key)

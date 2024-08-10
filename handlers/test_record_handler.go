@@ -17,6 +17,11 @@ type TestRecordHandler struct {
 	testRecordUsecase usecases_interfaces.TestRecordUseCase
 }
 
+func (t *TestRecordHandler) SearchTestRecords(w http.ResponseWriter, r *http.Request) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (t *TestRecordHandler) CreateTestRecord(w http.ResponseWriter, r *http.Request) {
 	var (
 		rID     = uuid.NewString()

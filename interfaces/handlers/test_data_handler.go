@@ -8,4 +8,5 @@ type TestDataHandler interface {
 	GetDetailRecord(w http.ResponseWriter, r *http.Request)
 	SaveRecord(w http.ResponseWriter, r *http.Request)
 	UnsavedRecord(w http.ResponseWriter, r *http.Request)
+	SearchHistory(w http.ResponseWriter, r *http.Request)
 }

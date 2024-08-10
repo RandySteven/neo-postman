@@ -18,6 +18,12 @@ type TestDataHandler struct {
 	usecase usecases_interfaces.TestDataUsecase
 }
 
+func (t *TestDataHandler) SearchHistory(w http.ResponseWriter, r *http.Request) {
+	var (
+		query = r.URL.Query().Get("q")
+	)
+}
+
 func (t *TestDataHandler) SaveRecord(w http.ResponseWriter, r *http.Request) {
 	utils.ContentType(w, "application/json")
 	var (

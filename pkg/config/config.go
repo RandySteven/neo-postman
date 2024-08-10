@@ -32,5 +32,13 @@ type (
 			Password      string `yaml:"password"`
 			DB            int    `yaml:"db"`
 		} `yaml:"redis"`
+
+		Elasticsearch struct {
+			Host        string `yaml:"host"`
+			Port        string `yaml:"port"`
+			Timeout     int    `yaml:"timeout"`
+			Sniff       bool   `yaml:"sniff"`
+			Healthcheck bool   `yaml:"healthcheck"`
+		} `yaml:"elasticsearch"`
 	}
 )
