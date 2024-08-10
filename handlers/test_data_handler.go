@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"github.com/RandySteven/neo-postman/entities/payloads/params"
 	"github.com/RandySteven/neo-postman/entities/payloads/requests"
 	"github.com/RandySteven/neo-postman/enums"
 	handlers_interfaces "github.com/RandySteven/neo-postman/interfaces/handlers"
@@ -48,9 +49,10 @@ func (t *TestDataHandler) GetAllRecords(w http.ResponseWriter, r *http.Request) 
 		rID     = uuid.NewString()
 		ctx     = context.WithValue(r.Context(), enums.RequestID, rID)
 		dataKey = `records`
+		param   = params.NewTestParam(r.URL.Query())
 	)
 
-	records, customErr := t.usecase.GetAllRecords(ctx, nil)
+	records, customErr := t.usecase.GetAllRecords(ctx, param)
 	if customErr != nil {
 		utils.ResponseHandler(w, customErr.ErrCode(), `failed to get records`, nil, nil, customErr)
 		return

@@ -1,11 +1,8 @@
 package queries
 
-const (
-	AND   = `AND`
-	OR    = `OR`
-	IN    = `IN`
-	NOT   = `NOT`
-	EQUAL = `=`
+import (
+	"fmt"
+	"github.com/RandySteven/neo-postman/enums"
 )
 
 type (
@@ -13,23 +10,23 @@ type (
 	DropQuery      string
 	GoQuery        string
 
-	Param struct {
-		Operator          string
-		ConnectorOperator string
-		Value             interface{}
+	QueryParam struct {
+		Key      string
+		Value    interface{}
+		Operator enums.QueryOperator
 	}
 
-	QueryParam struct {
-		Params map[string]Param
-		Page   int
-		Limit  int
+	QueryCondition struct {
+		Operator enums.QueryOperator
+		Param    *QueryParam
 	}
 )
 
 func (p *QueryParam) ToString() string {
-	//for k, v := range p.Params {
-	//	query := fmt.Sprintf("%s %s %s", v.Operator, k, v.ConnectorOperator)
-	//}
+	return fmt.Sprintf("%s %s %s", p.Key, p.Operator, p.Value)
+}
+
+func ToString(conditions []*QueryCondition) string {
 	return ""
 }
 
