@@ -42,7 +42,7 @@ func (t *TestRecordHandler) GetAllTestRecords(w http.ResponseWriter, r *http.Req
 		ctx     = context.WithValue(r.Context(), enums.RequestID, rID)
 		dataKey = `records`
 	)
-	result, customErr := t.testRecordUsecase.GetAllTestRecords(ctx)
+	result, customErr := t.testRecordUsecase.GetAllTestRecords(ctx, nil)
 	if customErr != nil {
 		utils.ResponseHandler(w, customErr.ErrCode(), `request invalid`, nil, nil, customErr)
 		return

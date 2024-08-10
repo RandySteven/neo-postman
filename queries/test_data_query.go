@@ -24,6 +24,7 @@ const (
 				request_body, expected_response_code, expected_response, 
 				actual_response_code, actual_response, result_status, is_saved, response_time, created_at, updated_at, deleted_at
 			FROM test_datas
+		WHERE deleted_at IS NULL
 	`
 
 	UpdateTestData GoQuery = ` 

@@ -50,7 +50,7 @@ func (t *TestDataHandler) GetAllRecords(w http.ResponseWriter, r *http.Request) 
 		dataKey = `records`
 	)
 
-	records, customErr := t.usecase.GetAllRecords(ctx)
+	records, customErr := t.usecase.GetAllRecords(ctx, nil)
 	if customErr != nil {
 		utils.ResponseHandler(w, customErr.ErrCode(), `failed to get records`, nil, nil, customErr)
 		return
