@@ -36,6 +36,8 @@ type (
 		Elasticsearch struct {
 			Host        string `yaml:"host"`
 			Port        string `yaml:"port"`
+			Username    string `yaml:"username"`
+			Password    string `yaml:"password"`
 			Timeout     int    `yaml:"timeout"`
 			Sniff       bool   `yaml:"sniff"`
 			Healthcheck bool   `yaml:"healthcheck"`
