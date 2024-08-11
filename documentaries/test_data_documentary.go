@@ -136,8 +136,8 @@ func (t *testDataDocumentary) SearchDocument(ctx context.Context, query string) 
 	return result, nil
 }
 
-func (t *testDataDocumentary) DeleteDocument(ctx context.Context, id string) error {
-	res, err := t.client.Delete("test-data-index", id)
+func (t *testDataDocumentary) DeletingDocument(ctx context.Context, id uint64) error {
+	res, err := t.client.Delete("test-data-index", fmt.Sprintf("%d", id))
 	if err != nil {
 		return fmt.Errorf("error deleting document: %w", err)
 	}
@@ -150,7 +150,7 @@ func (t *testDataDocumentary) DeleteDocument(ctx context.Context, id string) err
 	return nil
 }
 
-func (t *testDataDocumentary) DeleteIndex(ctx context.Context) error {
+func (t *testDataDocumentary) DeletingIndex(ctx context.Context) error {
 	res, err := t.client.Indices.Delete([]string{"test-data-index"})
 	if err != nil {
 		return fmt.Errorf("error deleting index: %w", err)
