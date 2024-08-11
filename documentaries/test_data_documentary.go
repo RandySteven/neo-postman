@@ -15,16 +15,56 @@ type testDataDocumentary struct {
 	client *elasticsearch.Client
 }
 
+type MultiMatchQuery struct {
+	Query  string   `json:"query"`
+	Fields []string `json:"fields"`
+}
+
+type Query struct {
+	MultiMatch MultiMatchQuery `json:"multi_match"`
+}
+
+type SearchRequest struct {
+	Query Query `json:"query"`
+}
+
+type SearchResponse struct {
+	Hits struct {
+		Hits []struct {
+			Source models.TestData `json:"_source"`
+		} `json:"hits"`
+	} `json:"hits"`
+}
+
+func (t *testDataDocumentary) createIndexIfNotExists(ctx context.Context, indexName string) error {
+	exists, err := t.client.Indices.Exists([]string{indexName})
+	if err != nil {
+		return fmt.Errorf("error checking index existence: %w", err)
+	}
+	if exists.StatusCode == 404 {
+		_, err = t.client.Indices.Create(indexName)
+		if err != nil {
+			return fmt.Errorf("error creating index: %w", err)
+		}
+	}
+	return nil
+}
+
 func (t *testDataDocumentary) MakeAnIndex(ctx context.Context, document *models.TestData) (err error) {
-	_, err = t.client.Indices.Create("test-data-index")
-	if err != nil {
+	if err := t.createIndexIfNotExists(ctx, "test-data-index"); err != nil {
 		return err
 	}
-	data, _ := json.Marshal(document)
-	_, err = t.client.Index("my_index", bytes.NewReader(data))
+
+	data, err := json.Marshal(document)
 	if err != nil {
-		return err
+		return fmt.Errorf("error marshaling document: %w", err)
 	}
+
+	_, err = t.client.Index("test-data-index", bytes.NewReader(data))
+	if err != nil {
+		return fmt.Errorf("error indexing document: %w", err)
+	}
+
 	return nil
 }
 
@@ -45,50 +85,83 @@ func (t *testDataDocumentary) GetIndex(ctx context.Context, id uint64) (document
 	return document, nil
 }
 
-func (t *testDataDocumentary) SearchDocument(ctx context.Context, query string) (result *models.TestData, err error) {
-	//TODO implement me
-	bodyQry := fmt.Sprintf(`{
-		"query": {
-			"multi_match": {
-				"query": "%s",
-				"fields": [
-					"id",
-				 	"host", "method", "uri", "description", 
-				 	"request_header", "request_body", "actual_response_code", "expected_response_code",
-					"result_status"
-				]
-			}
-		}
-	}`, query)
-	log.Println(bodyQry)
+func (t *testDataDocumentary) SearchDocument(ctx context.Context, query string) (result []*models.TestData, err error) {
+	// Construct the query using a struct
+	searchRequest := SearchRequest{
+		Query: Query{
+			MultiMatch: MultiMatchQuery{
+				Query: query,
+				Fields: []string{
+					"id", "host", "method", "uri", "description",
+					"request_header", "request_body", "actual_response_code", "expected_response_code",
+					"result_status",
+				},
+			},
+		},
+	}
 
+	body, err := json.Marshal(searchRequest)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling search request: %w", err)
+	}
+	log.Printf("Search Query: %s\n", string(body))
+
+	// Perform the search
 	res, err := t.client.Search(
 		t.client.Search.WithContext(ctx),
 		t.client.Search.WithIndex("test-data-index"),
-		t.client.Search.WithBody(bytes.NewBufferString(bodyQry)),
-		t.client.Search.WithPretty())
+		t.client.Search.WithBody(bytes.NewBuffer(body)),
+		t.client.Search.WithPretty(),
+	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error executing search: %w", err)
 	}
 	defer res.Body.Close()
+
 	if res.IsError() {
-		return nil, fmt.Errorf(res.String())
+		return nil, fmt.Errorf("search request failed: %s", res.String())
 	}
-	err = json.NewDecoder(res.Body).Decode(&result)
+
+	// Decode the search response
+	var searchResponse SearchResponse
+	if err := json.NewDecoder(res.Body).Decode(&searchResponse); err != nil {
+		return nil, fmt.Errorf("error decoding search response: %w", err)
+	}
+
+	// Extract the hits into the result slice
+	for _, hit := range searchResponse.Hits.Hits {
+		result = append(result, &hit.Source)
+	}
+
+	return result, nil
+}
+
+func (t *testDataDocumentary) DeleteDocument(ctx context.Context, id string) error {
+	res, err := t.client.Delete("test-data-index", id)
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("error deleting document: %w", err)
 	}
-	return
+	defer res.Body.Close()
+
+	if res.IsError() {
+		return fmt.Errorf("error in delete response: %s", res.String())
+	}
+
+	return nil
 }
 
-func (t *testDataDocumentary) DeletingDocument(ctx context.Context) (err error) {
-	//TODO implement me
-	panic("implement me")
-}
+func (t *testDataDocumentary) DeleteIndex(ctx context.Context) error {
+	res, err := t.client.Indices.Delete([]string{"test-data-index"})
+	if err != nil {
+		return fmt.Errorf("error deleting index: %w", err)
+	}
+	defer res.Body.Close()
 
-func (t *testDataDocumentary) DeletingIndex(ctx context.Context) (err error) {
-	//TODO implement me
-	panic("implement me")
+	if res.IsError() {
+		return fmt.Errorf("error in delete index response: %s", res.String())
+	}
+
+	return nil
 }
 
 var _ documentaries_interfaces.TestDataDocumentary = &testDataDocumentary{}
