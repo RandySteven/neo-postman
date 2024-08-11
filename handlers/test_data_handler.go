@@ -20,7 +20,7 @@ type TestDataHandler struct {
 
 func (t *TestDataHandler) SearchHistory(w http.ResponseWriter, r *http.Request) {
 	var (
-		query = r.URL.Query().Get("q")
+		_ = r.URL.Query().Get("q")
 	)
 }
 

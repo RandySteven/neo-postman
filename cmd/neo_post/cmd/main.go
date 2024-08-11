@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/RandySteven/neo-postman/apps"
 	"github.com/RandySteven/neo-postman/pkg/config"
+	"github.com/RandySteven/neo-postman/pkg/elastics"
 	"github.com/RandySteven/neo-postman/pkg/postgres"
 	"github.com/RandySteven/neo-postman/pkg/redis"
 	"github.com/RandySteven/neo-postman/pkg/scheduler"
@@ -57,6 +58,16 @@ func main() {
 		return
 	}
 
+	documentaries, err := elastics.NewESClient(config)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	if err = documentaries.Ping(ctx); err != nil {
+		log.Fatal(err)
+		return
+	}
+
 	schedulerAct := scheduler.NewScheduler(*repositories, *caches)
 	err = schedulerAct.RunAllJob(ctx)
 	if err != nil {
@@ -64,7 +75,7 @@ func main() {
 		return
 	}
 
-	handlers := apps.NewHandlers(repositories, caches)
+	handlers := apps.NewHandlers(repositories, caches, documentaries)
 	r := mux.NewRouter()
 	r = apps.RegisterMiddleware(r)
 

@@ -3,6 +3,7 @@ package apps
 import (
 	"github.com/RandySteven/neo-postman/handlers"
 	handlers_interfaces "github.com/RandySteven/neo-postman/interfaces/handlers"
+	"github.com/RandySteven/neo-postman/pkg/elastics"
 	"github.com/RandySteven/neo-postman/pkg/postgres"
 	"github.com/RandySteven/neo-postman/pkg/redis"
 )
@@ -14,8 +15,8 @@ type Handlers struct {
 	TestRecordHandler handlers_interfaces.TestRecordHandler
 }
 
-func NewHandlers(repo *postgres.Repositories, cache *redis.RedisClient) *Handlers {
-	usecases := NewUsecases(repo, cache)
+func NewHandlers(repo *postgres.Repositories, cache *redis.RedisClient, documentary *elastics.ESClient) *Handlers {
+	usecases := NewUsecases(repo, cache, documentary)
 	return &Handlers{
 		TestDataHandler:   handlers.NewTestDataHandler(usecases.TestDataUsecase),
 		JiraIssueHandler:  handlers.NewJiraIssueHandler(usecases.JiraIssueUsecase),

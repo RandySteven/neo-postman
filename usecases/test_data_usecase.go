@@ -12,6 +12,7 @@ import (
 	"github.com/RandySteven/neo-postman/entities/payloads/responses"
 	"github.com/RandySteven/neo-postman/enums"
 	caches_interfaces "github.com/RandySteven/neo-postman/interfaces/caches"
+	documentaries_interfaces "github.com/RandySteven/neo-postman/interfaces/documentaries"
 	repositories_interfaces "github.com/RandySteven/neo-postman/interfaces/repositories"
 	usecases_interfaces "github.com/RandySteven/neo-postman/interfaces/usecases"
 	"github.com/RandySteven/neo-postman/pkg/yaml"
@@ -26,14 +27,40 @@ import (
 )
 
 type testDataUsecase struct {
-	testDataRepo   repositories_interfaces.TestDataRepository
-	testRecordRepo repositories_interfaces.TestRecordRepository
-	testDataCache  caches_interfaces.TestDataCache
+	testDataRepo        repositories_interfaces.TestDataRepository
+	testRecordRepo      repositories_interfaces.TestRecordRepository
+	testDataCache       caches_interfaces.TestDataCache
+	testDataDocumentary documentaries_interfaces.TestDataDocumentary
 }
 
-func (t *testDataUsecase) SearchHistory(ctx context.Context, query string) (result *responses.TestDataDetail, customErr *apperror.CustomError) {
-
-	return
+func (t *testDataUsecase) SearchHistory(ctx context.Context, query string) (result []*responses.TestRecordList, customErr *apperror.CustomError) {
+	testDatas, err := t.testDataDocumentary.SearchDocument(ctx, query)
+	if err != nil {
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get documents`, err)
+	}
+	if len(testDatas) == 0 {
+		return nil, apperror.NewCustomError(apperror.ErrNotFound, `no documents`, fmt.Errorf(`no document`))
+	}
+	for _, testData := range testDatas {
+		detailUrl := utils.DetailURL(enums.TestDataPrefix.ToString(), testData.ID)
+		result = append(result, &responses.TestRecordList{
+			ID:           testData.ID,
+			Description:  testData.Description,
+			ResultStatus: testData.ResultStatus.ToString(),
+			CreatedAt:    testData.CreatedAt.Local(),
+			IsSaved:      testData.IsSaved,
+			Links: struct {
+				Detail  string `json:"detail"`
+				Save    string `json:"save"`
+				Unsaved string `json:"unsaved"`
+			}{
+				Detail:  detailUrl,
+				Save:    detailUrl + "/saved",
+				Unsaved: detailUrl + "/unsaved",
+			},
+		})
+	}
+	return result, nil
 }
 
 func (t *testDataUsecase) UnsavedRecord(ctx context.Context, id uint64) (result string, customErr *apperror.CustomError) {
@@ -299,34 +326,65 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 
 	testData.ActualResponseCode = resp.StatusCode
 
-	// Save test data to database
+	var (
+		wg          sync.WaitGroup
+		customErrCh = make(chan *apperror.CustomError)
+		resultch    = make(chan *responses.TestDataResponse)
+	)
+
+	wg.Add(2)
+
 	savedTestData, err := t.testDataRepo.Save(ctx, testData)
 	if err != nil {
-		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to insert database`, err)
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to save test data`, err)
 	}
 
-	detailUrl := utils.DetailURL(enums.TestDataPrefix.ToString(), savedTestData.ID)
-	result = &responses.TestDataResponse{
-		ID:           savedTestData.ID,
-		ResultStatus: savedTestData.ResultStatus.ToString(),
-		Links: struct {
-			Detail string `json:"detail"`
-			Saved  string `json:"saved"`
-		}{
-			Detail: detailUrl,
-			Saved:  detailUrl + "/saved",
-		},
-		ResponseTime:         responseTime,
-		ExpectedResponseCode: savedTestData.ExpectedResponseCode,
-		ActualResponseCode:   savedTestData.ExpectedResponseCode,
-		ExpectedResponseBody: savedTestData.ExpectedResponse,
-		ActualResponseBody:   savedTestData.ActualResponse,
-	}
+	go func() {
+		defer wg.Done()
+		detailUrl := utils.DetailURL(enums.TestDataPrefix.ToString(), savedTestData.ID)
+		result = &responses.TestDataResponse{
+			ID:           savedTestData.ID,
+			ResultStatus: savedTestData.ResultStatus.ToString(),
+			Links: struct {
+				Detail string `json:"detail"`
+				Saved  string `json:"saved"`
+			}{
+				Detail: detailUrl,
+				Saved:  detailUrl + "/saved",
+			},
+			ResponseTime:         responseTime,
+			ExpectedResponseCode: savedTestData.ExpectedResponseCode,
+			ActualResponseCode:   savedTestData.ExpectedResponseCode,
+			ExpectedResponseBody: savedTestData.ExpectedResponse,
+			ActualResponseBody:   savedTestData.ActualResponse,
+		}
+		resultch <- result
+	}()
+
+	go func() {
+		defer wg.Done()
+		err = t.testDataDocumentary.MakeAnIndex(ctx, savedTestData)
+		if err != nil {
+			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to save test data to es`, err)
+			return
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+		close(customErrCh)
+		close(resultch)
+	}()
 
 	end := time.Since(start)
 	log.Println("latency : ", end)
 
-	return result, nil
+	select {
+	case customErr = <-customErrCh:
+		return nil, customErr
+	case result = <-resultch:
+		return result, nil
+	}
 }
 
 func compareJSON(actual, expected json.RawMessage) bool {
@@ -364,10 +422,12 @@ func NewTestDataUsecase(
 	testDataRepo repositories_interfaces.TestDataRepository,
 	testRecordRepo repositories_interfaces.TestRecordRepository,
 	testDataCache caches_interfaces.TestDataCache,
+	testDataDocumentary documentaries_interfaces.TestDataDocumentary,
 ) *testDataUsecase {
 	return &testDataUsecase{
-		testDataRepo:   testDataRepo,
-		testRecordRepo: testRecordRepo,
-		testDataCache:  testDataCache,
+		testDataRepo:        testDataRepo,
+		testRecordRepo:      testRecordRepo,
+		testDataCache:       testDataCache,
+		testDataDocumentary: testDataDocumentary,
 	}
 }
