@@ -27,6 +27,7 @@ func NewEndpointRouters(h *Handlers) map[enums.RouterPrefix][]EndpointRouter {
 	endpointRouters[enums.TestDataPrefix] = []EndpointRouter{
 		*RegisterEndpointRouter("", http.MethodPost, h.TestDataHandler.CreateTestAPI),
 		*RegisterEndpointRouter("", http.MethodGet, h.TestDataHandler.GetAllRecords),
+		*RegisterEndpointRouter("/search", http.MethodGet, h.TestDataHandler.SearchHistory),
 		*RegisterEndpointRouter("/{id}", http.MethodGet, h.TestDataHandler.GetDetailRecord),
 		*RegisterEndpointRouter("/{id}/saved", http.MethodGet, h.TestDataHandler.SaveRecord),
 		*RegisterEndpointRouter("/{id}/unsaved", http.MethodGet, h.TestDataHandler.UnsavedRecord),

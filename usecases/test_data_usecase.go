@@ -218,6 +218,10 @@ func (t *testDataUsecase) GetAllRecords(ctx context.Context, param *params.TestD
 	}
 
 	for _, testData := range testDatas {
+		//err = t.testDataDocumentary.MakeAnIndex(ctx, testData)
+		//if err != nil {
+		//	return nil, apperror.NewCustomError(apperror.ErrInternalServer, "failed to save test data index", err)
+		//}
 		detailUrl := utils.DetailURL(enums.TestDataPrefix.ToString(), testData.ID)
 		result = append(result, &responses.TestRecordList{
 			ID:           testData.ID,

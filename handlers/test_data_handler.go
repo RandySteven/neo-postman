@@ -10,6 +10,7 @@ import (
 	"github.com/RandySteven/neo-postman/utils"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -20,8 +21,18 @@ type TestDataHandler struct {
 
 func (t *TestDataHandler) SearchHistory(w http.ResponseWriter, r *http.Request) {
 	var (
-		_ = r.URL.Query().Get("q")
+		rID     = uuid.NewString()
+		ctx     = context.WithValue(r.Context(), enums.RequestID, rID)
+		query   = r.URL.Query().Get("q")
+		dataKey = `results`
 	)
+	log.Println("query : ", query)
+	result, customErr := t.usecase.SearchHistory(ctx, query)
+	if customErr != nil {
+		utils.ResponseHandler(w, customErr.ErrCode(), `failed to get records`, nil, nil, customErr)
+		return
+	}
+	utils.ResponseHandler(w, http.StatusOK, `success to get result`, &dataKey, result, nil)
 }
 
 func (t *TestDataHandler) SaveRecord(w http.ResponseWriter, r *http.Request) {

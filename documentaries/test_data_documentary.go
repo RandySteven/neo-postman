@@ -102,6 +102,7 @@ func (t *testDataDocumentary) SearchDocument(ctx context.Context, query string) 
 
 	body, err := json.Marshal(searchRequest)
 	if err != nil {
+		log.Println("err : ", err)
 		return nil, fmt.Errorf("error marshaling search request: %w", err)
 	}
 	log.Printf("Search Query: %s\n", string(body))
@@ -114,6 +115,7 @@ func (t *testDataDocumentary) SearchDocument(ctx context.Context, query string) 
 		t.client.Search.WithPretty(),
 	)
 	if err != nil {
+		log.Println("executor search err : ", err)
 		return nil, fmt.Errorf("error executing search: %w", err)
 	}
 	defer res.Body.Close()
@@ -125,6 +127,7 @@ func (t *testDataDocumentary) SearchDocument(ctx context.Context, query string) 
 	// Decode the search response
 	var searchResponse SearchResponse
 	if err := json.NewDecoder(res.Body).Decode(&searchResponse); err != nil {
+		log.Println("err decoder : ", err)
 		return nil, fmt.Errorf("error decoding search response: %w", err)
 	}
 
