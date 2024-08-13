@@ -15,27 +15,6 @@ type testDataDocumentary struct {
 	client *elasticsearch.Client
 }
 
-type MultiMatchQuery struct {
-	Query  string   `json:"query"`
-	Fields []string `json:"fields"`
-}
-
-type Query struct {
-	MultiMatch MultiMatchQuery `json:"multi_match"`
-}
-
-type SearchRequest struct {
-	Query Query `json:"query"`
-}
-
-type SearchResponse struct {
-	Hits struct {
-		Hits []struct {
-			Source models.TestData `json:"_source"`
-		} `json:"hits"`
-	} `json:"hits"`
-}
-
 func (t *testDataDocumentary) createIndexIfNotExists(ctx context.Context, indexName string) error {
 	exists, err := t.client.Indices.Exists([]string{indexName})
 	if err != nil {
@@ -89,13 +68,13 @@ func (t *testDataDocumentary) SearchDocument(ctx context.Context, query string) 
 	// Construct the query using a struct
 	searchRequest := SearchRequest{
 		Query: Query{
-			MultiMatch: MultiMatchQuery{
+			MultiMatch: MultiMatch{
 				Query: query,
 				Fields: []string{
-					"id", "host", "method", "uri", "description",
-					"request_header", "request_body", "actual_response_code", "expected_response_code",
-					"result_status",
+					"host", "method", "uri", "description",
+					"request_header", "request_body",
 				},
+				Type: "phrase",
 			},
 		},
 	}

@@ -42,5 +42,7 @@ type (
 			Sniff       bool   `yaml:"sniff"`
 			Healthcheck bool   `yaml:"healthcheck"`
 		} `yaml:"elasticsearch"`
+
+		Firestore struct{}
 	}
 )
