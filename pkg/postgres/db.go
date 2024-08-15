@@ -16,6 +16,7 @@ import (
 )
 
 type Repositories struct {
+	DashboardRepo  repositories_interfaces.DashboardRepository
 	TestDataRepo   repositories_interfaces.TestDataRepository
 	JiraIssueRepo  repositories_interfaces.JiraIssueRepository
 	TestRecordRepo repositories_interfaces.TestRecordRepository
@@ -47,6 +48,7 @@ func NewRepositories(config *config.Config) (*Repositories, error) {
 		return nil, err
 	}
 	return &Repositories{
+		DashboardRepo:  repositories.NewDashboardRepository(db),
 		TestDataRepo:   repositories.NewTestDataRepository(db),
 		JiraIssueRepo:  repositories.NewJiraRepository(db),
 		TestRecordRepo: repositories.NewTestRecordRepository(db),
