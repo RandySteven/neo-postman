@@ -272,7 +272,7 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 		ExpectedResponse:     request.ExpectedResponse,
 		ExpectedResponseCode: request.ExpectedResponseCode,
 		ActualResponse:       nil,
-		ResultStatus:         enums.Error,
+		ResultStatus:         enums.Default,
 	}
 	var (
 		req                  = &http.Request{}
@@ -309,26 +309,32 @@ func (t *testDataUsecase) CreateAPITest(ctx context.Context, request *requests.T
 	responseTime := time.Since(responseTimeStart)
 	testData.ResponseTime = responseTime
 
-	if request.ExpectedResponse != nil {
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to read response body`, err)
-		}
-		testData.ActualResponse = make(json.RawMessage, 0)
-		err = json.Unmarshal(body, &testData.ActualResponse)
-		if err != nil {
-			return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to unmarshal response body`, err)
-		}
+	testData.ActualResponseCode = resp.StatusCode
 
-		// Compare actual response with expected response
-		if !compareJSON(testData.ActualResponse, request.ExpectedResponse) {
-			testData.ResultStatus = enums.Unexpected
-		} else {
-			testData.ResultStatus = enums.Expected
-		}
+	if request.ExpectedResponseCode != resp.StatusCode {
+		testData.ResultStatus = enums.Unexpected
 	}
 
-	testData.ActualResponseCode = resp.StatusCode
+	for testData.ResultStatus == enums.Default {
+		if request.ExpectedResponse != nil {
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to read response body`, err)
+			}
+			testData.ActualResponse = make(json.RawMessage, 0)
+			err = json.Unmarshal(body, &testData.ActualResponse)
+			if err != nil {
+				return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to unmarshal response body`, err)
+			}
+
+			// Compare actual response with expected response
+			if !compareJSON(testData.ActualResponse, request.ExpectedResponse) {
+				testData.ResultStatus = enums.Unexpected
+			} else {
+				testData.ResultStatus = enums.Expected
+			}
+		}
+	}
 
 	var (
 		wg          sync.WaitGroup

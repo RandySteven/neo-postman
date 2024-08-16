@@ -6,6 +6,7 @@ const (
 	Expected ResultStatus = iota + 1
 	Unexpected
 	Error
+	Default
 )
 
 func (s ResultStatus) ToString() string {
