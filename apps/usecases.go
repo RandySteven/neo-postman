@@ -12,6 +12,7 @@ type Usecases struct {
 	TestDataUsecase   usecases_interfaces.TestDataUsecase
 	JiraIssueUsecase  usecases_interfaces.JiraIssueUseCase
 	TestRecordUsecase usecases_interfaces.TestRecordUseCase
+	DashboardUsecase  usecases_interfaces.DashboardUsecase
 }
 
 func NewUsecases(
@@ -22,5 +23,6 @@ func NewUsecases(
 		TestDataUsecase:   usecases.NewTestDataUsecase(repo.TestDataRepo, repo.TestRecordRepo, cache.TestDataCache, documentary.TestDataDocumentary),
 		JiraIssueUsecase:  usecases.NewJiraIssueUsecase(repo.JiraIssueRepo),
 		TestRecordUsecase: usecases.NewTestRecordUsecase(repo.TestDataRepo, repo.TestRecordRepo),
+		DashboardUsecase:  usecases.NewDashboardUsecase(repo.DashboardRepo),
 	}
 }

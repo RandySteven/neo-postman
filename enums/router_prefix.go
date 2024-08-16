@@ -7,6 +7,7 @@ const (
 	TestDataPrefix   RouterPrefix = "/testdata"
 	JiraIssuePrefix  RouterPrefix = "/jira"
 	TestRecordPrefix RouterPrefix = "/testrecord"
+	DashboardPrefix  RouterPrefix = "/dashboard"
 )
 
 func (r RouterPrefix) ToString() string {

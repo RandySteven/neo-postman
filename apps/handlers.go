@@ -13,6 +13,7 @@ type Handlers struct {
 	TestDataHandler   handlers_interfaces.TestDataHandler
 	JiraIssueHandler  handlers_interfaces.JiraIssueHandler
 	TestRecordHandler handlers_interfaces.TestRecordHandler
+	DashboardHandler  handlers_interfaces.DashboardHandler
 }
 
 func NewHandlers(repo *postgres.Repositories, cache *redis.RedisClient, documentary *elastics.ESClient) *Handlers {
@@ -22,5 +23,6 @@ func NewHandlers(repo *postgres.Repositories, cache *redis.RedisClient, document
 		JiraIssueHandler:  handlers.NewJiraIssueHandler(usecases.JiraIssueUsecase),
 		TestRecordHandler: handlers.NewTestRecordHandler(usecases.TestRecordUsecase),
 		DevHandler:        handlers.NewDevHandler(),
+		DashboardHandler:  handlers.NewDashboardHandler(usecases.DashboardUsecase),
 	}
 }

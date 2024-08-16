@@ -38,13 +38,13 @@ func NewRepositories(config *config.Config) (*Repositories, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
 	db.SetMaxIdleConns(10)
 	db.SetMaxOpenConns(8)
 	db.SetConnMaxLifetime(10 * time.Minute)
 	db.SetConnMaxIdleTime(8 * time.Minute)
 	err = db.Ping()
 	if err != nil {
+		db.Close()
 		return nil, err
 	}
 	return &Repositories{
