@@ -51,6 +51,7 @@ func NewEndpointRouters(h *Handlers) map[enums.RouterPrefix][]EndpointRouter {
 
 	endpointRouters[enums.DashboardPrefix] = []EndpointRouter{
 		*RegisterEndpointRouter("/result-count", http.MethodGet, h.DashboardHandler.GetExpectedUnexpectedResult),
+		*RegisterEndpointRouter("/avg-response-time", http.MethodGet, h.DashboardHandler.GetAvgResponseTimePerAPIs),
 	}
 
 	return endpointRouters
