@@ -16,4 +16,15 @@ const (
 			FROM test_datas
 		GROUP BY uri 
 	`
+
+	GetMethodCountQuery GoQuery = `
+		SELECT
+			SUM(CASE WHEN method = 'POST' THEN 1 ELSE 0 END) AS post,
+			SUM(CASE WHEN method = 'GET' THEN 1 ELSE 0 END) AS get,
+			SUM(CASE WHEN method = 'PUT' THEN 1 ELSE 0 END) AS put,
+			SUM(CASE WHEN method = 'PATCH' THEN 1 ELSE 0 END) AS patch,
+			SUM(CASE WHEN method = 'DELETE' THEN 1 ELSE 0 END) AS delete
+		FROM
+			test_datas;
+	`
 )

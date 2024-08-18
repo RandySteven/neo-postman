@@ -10,4 +10,12 @@ type (
 		Uri     string  `json:"uri"`
 		AvgTime float64 `json:"avg_time"`
 	}
+
+	CountApiMethod struct {
+		Post   uint64 `json:"post"`
+		Get    uint64 `json:"get"`
+		Patch  uint64 `json:"patch"`
+		Put    uint64 `json:"put"`
+		Delete uint64 `json:"delete"`
+	}
 )

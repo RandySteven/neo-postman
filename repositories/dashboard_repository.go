@@ -13,6 +13,15 @@ type dashboardRepository struct {
 	db *sql.DB
 }
 
+func (d *dashboardRepository) SelectCountApiMethod(ctx context.Context) (result *models.CountApiMethod, err error) {
+	result = &models.CountApiMethod{}
+	err = d.db.QueryRowContext(ctx, queries.GetMethodCountQuery.ToString()).Scan(&result.Post, &result.Get, &result.Put, &result.Patch, &result.Delete)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (d *dashboardRepository) SelectAvgTimeResponseTime(ctx context.Context) (result []*models.AvgResponseTimePerApi, err error) {
 	result = []*models.AvgResponseTimePerApi{}
 	rows, err := d.db.QueryContext(ctx, queries.GetAvgResponseTimePerAPIQuery.ToString())

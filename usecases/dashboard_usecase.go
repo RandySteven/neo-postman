@@ -12,6 +12,14 @@ type dashboardUsecase struct {
 	dashboardRepo repositories_interfaces.DashboardRepository
 }
 
+func (d *dashboardUsecase) GetMethodCount(ctx context.Context) (result *models.CountApiMethod, customErr *apperror.CustomError) {
+	result, err := d.dashboardRepo.SelectCountApiMethod(ctx)
+	if err != nil {
+		return nil, apperror.NewCustomError(apperror.ErrInternalServer, `failed to get avg response time`, err)
+	}
+	return result, nil
+}
+
 func (d *dashboardUsecase) GetAvgResponseTimePerAPIs(ctx context.Context) (result []*models.AvgResponseTimePerApi, customErr *apperror.CustomError) {
 	result, err := d.dashboardRepo.SelectAvgTimeResponseTime(ctx)
 	if err != nil {
