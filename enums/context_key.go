@@ -5,4 +5,7 @@ type ContextKey int
 const (
 	RequestID ContextKey = iota + 1
 	UserID
+	ActiveRedis
+	ActivePostgres
+	ActiveElastic
 )

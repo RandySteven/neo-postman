@@ -14,6 +14,23 @@ type DashboardHandler struct {
 	usecase usecases_interfaces.DashboardUsecase
 }
 
+func (d *DashboardHandler) GetActiveTools(w http.ResponseWriter, r *http.Request) {
+	var (
+		ctx     = context.WithValue(r.Context(), enums.RequestID, uuid.NewString())
+		dataKey = `result`
+	)
+	activeServices := struct {
+		Redis    any `json:"redis"`
+		Postgres any `json:"postgres"`
+		Elastic  any `json:"elastic"`
+	}{
+		Redis:    ctx.Value(enums.ActiveRedis),
+		Postgres: ctx.Value(enums.ActivePostgres),
+		Elastic:  ctx.Value(enums.ActiveElastic),
+	}
+	utils.ResponseHandler(w, http.StatusOK, `success get response`, &dataKey, activeServices, nil)
+}
+
 func (d *DashboardHandler) GetCountMethod(w http.ResponseWriter, r *http.Request) {
 	var (
 		rID     = uuid.NewString()

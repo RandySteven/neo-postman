@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/RandySteven/neo-postman/apps"
+	"github.com/RandySteven/neo-postman/enums"
 	"github.com/RandySteven/neo-postman/pkg/config"
 	"github.com/RandySteven/neo-postman/pkg/elastics"
 	"github.com/RandySteven/neo-postman/pkg/postgres"
@@ -40,40 +41,44 @@ func main() {
 		return
 	}
 
+	ctx2 := context.WithValue(ctx, enums.ActivePostgres, 1)
 	repositories, err := postgres.NewRepositories(config)
 	if err != nil {
+		ctx2 = context.WithValue(ctx2, enums.ActivePostgres, 0)
 		log.Fatal(err)
-		return
 	}
 
+	ctx3 := context.WithValue(ctx2, enums.ActiveRedis, 1)
 	caches, err := redis.NewRedis(config)
 	if err != nil {
+		ctx3 = context.WithValue(ctx3, enums.ActiveRedis, 0)
 		log.Fatal(err)
-		return
 	}
 
-	err = caches.Ping(ctx)
+	err = caches.Ping(ctx3)
 	if err != nil {
+		ctx3 = context.WithValue(ctx3, enums.ActiveRedis, 0)
 		log.Fatal(err)
-		return
 	}
 
+	ctx4 := context.WithValue(ctx3, enums.ActiveElastic, 1)
 	documentaries, err := elastics.NewESClient(config)
 	if err != nil {
+		ctx4 = context.WithValue(ctx4, enums.ActiveElastic, 0)
 		log.Fatal(err)
-		return
 	}
-	if err = documentaries.Ping(ctx); err != nil {
+	if err = documentaries.Ping(ctx3); err != nil {
+		ctx4 = context.WithValue(ctx4, enums.ActiveElastic, 0)
 		log.Fatal(err)
-		return
 	}
 
 	schedulerAct := scheduler.NewScheduler(*repositories, *caches)
 	err = schedulerAct.RunAllJob(ctx)
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
+
+	ctx = ctx4
 
 	handlers := apps.NewHandlers(repositories, caches, documentaries)
 	r := mux.NewRouter()
