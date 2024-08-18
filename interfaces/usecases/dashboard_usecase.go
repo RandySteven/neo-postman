@@ -8,4 +8,5 @@ import (
 
 type DashboardUsecase interface {
 	GetExpectedUnexpectedResult(ctx context.Context) (result *models.ExpectedResultCount, customErr *apperror.CustomError)
+	GetAvgResponseTimePerAPIs(ctx context.Context) (result []*models.AvgResponseTimePerApi, customErr *apperror.CustomError)
 }

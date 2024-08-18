@@ -13,6 +13,25 @@ type dashboardRepository struct {
 	db *sql.DB
 }
 
+func (d *dashboardRepository) SelectAvgTimeResponseTime(ctx context.Context) (result []*models.AvgResponseTimePerApi, err error) {
+	result = []*models.AvgResponseTimePerApi{}
+	rows, err := d.db.QueryContext(ctx, queries.GetAvgResponseTimePerAPIQuery.ToString())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		response := &models.AvgResponseTimePerApi{}
+		err = rows.Scan(&response.Uri, &response.AvgTime)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, response)
+	}
+	return result, nil
+}
+
 func (d *dashboardRepository) SelectExpectedUnexpectedCount(ctx context.Context) (result *models.ExpectedResultCount, err error) {
 	result = &models.ExpectedResultCount{}
 	err = d.db.QueryRowContext(ctx, queries.GetExpectedAndUnexpectedDataQuery.ToString()).Scan(&result.Expected, &result.Unexpected)

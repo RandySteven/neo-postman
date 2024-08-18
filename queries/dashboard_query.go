@@ -10,4 +10,10 @@ const (
 	WHERE
 		result_status IN (1, 2);
 	`
+
+	GetAvgResponseTimePerAPIQuery GoQuery = `
+		SELECT uri, AVG(response_time) as avg_time
+			FROM test_datas
+		GROUP BY uri 
+	`
 )
