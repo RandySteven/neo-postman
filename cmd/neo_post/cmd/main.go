@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/RandySteven/neo-postman/apps"
 	"github.com/RandySteven/neo-postman/enums"
+	"github.com/RandySteven/neo-postman/middlewares"
 	"github.com/RandySteven/neo-postman/pkg/config"
 	"github.com/RandySteven/neo-postman/pkg/elastics"
 	"github.com/RandySteven/neo-postman/pkg/postgres"
@@ -83,8 +84,7 @@ func main() {
 	handlers := apps.NewHandlers(repositories, caches, documentaries)
 	r := mux.NewRouter()
 	r = apps.RegisterMiddleware(r)
-
-	log.Println("UDAH KE RUN WA")
+	r.Use(middlewares.ContextMiddleware(ctx))
 	handlers.InitRouter(r)
 
 	go config.Run(r)

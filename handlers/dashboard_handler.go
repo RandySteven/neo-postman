@@ -19,14 +19,26 @@ func (d *DashboardHandler) GetActiveTools(w http.ResponseWriter, r *http.Request
 		ctx     = context.WithValue(r.Context(), enums.RequestID, uuid.NewString())
 		dataKey = `result`
 	)
-	activeServices := struct {
-		Redis    any `json:"redis"`
-		Postgres any `json:"postgres"`
-		Elastic  any `json:"elastic"`
+	activeServices := []struct {
+		Key   string `json:"key"`
+		Value any    `json:"value"`
+		Image string `json:"image,omitempty"`
 	}{
-		Redis:    ctx.Value(enums.ActiveRedis),
-		Postgres: ctx.Value(enums.ActivePostgres),
-		Elastic:  ctx.Value(enums.ActiveElastic),
+		{
+			Key:   "Redis",
+			Value: ctx.Value(enums.ActiveRedis),
+			Image: "",
+		},
+		{
+			Key:   "Postgres",
+			Value: ctx.Value(enums.ActivePostgres),
+			Image: "",
+		},
+		{
+			Key:   "Elastic",
+			Value: ctx.Value(enums.ActiveElastic),
+			Image: "",
+		},
 	}
 	utils.ResponseHandler(w, http.StatusOK, `success get response`, &dataKey, activeServices, nil)
 }
