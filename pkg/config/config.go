@@ -43,6 +43,15 @@ type (
 			Healthcheck bool   `yaml:"healthcheck"`
 		} `yaml:"elasticsearch"`
 
+		MongoDB struct {
+			Host        string `yaml:"host"`
+			Port        string `yaml:"port"`
+			Username    string `yaml:"username"`
+			Password    string `yaml:"password"`
+			MaxPoolSize int    `yaml:"maxPoolSize"`
+			TimeoutMs   int    `yaml:"timeoutMs"`
+		} `yaml:"mongoDb"`
+
 		Firestore struct{}
 	}
 )
