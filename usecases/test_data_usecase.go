@@ -88,17 +88,18 @@ func (t *testDataUsecase) UnsavedRecord(ctx context.Context, id uint64) (result 
 			customErrCh <- apperror.NewCustomError(apperror.ErrBadRequest, `user try to deleted again`, fmt.Errorf("you haven't put this on record"))
 			return
 		}
-		testData.IsSaved = false
-		testData, err = t.testDataRepo.Update(ctx, testData)
-		if err != nil {
-			customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to unsaved test data`, err)
-			return
-		}
 	}()
 
 	go func() {
 		defer wg.Done()
-
+		if testData.IsSaved == true {
+			testData.IsSaved = false
+			testData, err = t.testDataRepo.Update(ctx, testData)
+			if err != nil {
+				customErrCh <- apperror.NewCustomError(apperror.ErrInternalServer, `failed to unsaved test data`, err)
+				return
+			}
+		}
 	}()
 
 	go func() {

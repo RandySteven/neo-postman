@@ -1,20 +1,25 @@
 package models
 
-import "time"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
 
 type (
-	ApiCollection struct {
+	Api struct {
 		ID          uint64
 		Title       string
 		Description string
-		Collection  string
+		ContentFile string
 		CreatedAt   time.Time
 		UpdatedAt   time.Time
 		DeletedAt   *time.Time
 	}
 
-	ApiCollectionDetail struct {
-		Info struct {
+	ApiContentDetail struct {
+		ID    primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+		ApiID uint64             `json:"api_id" bson:"api_id"`
+		Info  struct {
 			PostManId      string `json:"_postman_id" bson:"_postman_id"`
 			Name           string `json:"name" bson:"name"`
 			Schema         string `json:"schema" bson:"schema"`
