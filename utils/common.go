@@ -22,7 +22,7 @@ func ConvertJSON(reader *http.Response) (map[string]interface{}, error) {
 	}
 	log.Println("body : ", body)
 
-	// Create a map to store the decoded data
+	// Create a map to mongos the decoded data
 	result := make(map[string]interface{})
 
 	err = json.Unmarshal(body, &result)
