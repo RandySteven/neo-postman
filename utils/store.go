@@ -14,10 +14,10 @@ func Store[T any](ctx context.Context, coll *mongo.Collection, entity *T) (*T, e
 	return entity, nil
 }
 
-func Find[T any](ctx context.Context, mongoDb *mongo.Client) ([]*T, error) {
+func Find[T any](ctx context.Context, coll *mongo.Collection) ([]*T, error) {
 	return []*T{}, nil
 }
 
-func FindID[T any](ctx context.Context, mongoDb *mongo.Client, id primitive.ObjectID) (*T, error) {
+func FindID[T any](ctx context.Context, coll *mongo.Collection, id primitive.ObjectID) (*T, error) {
 	return nil, nil
 }

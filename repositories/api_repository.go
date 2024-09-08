@@ -11,6 +11,34 @@ import (
 
 type apiRepository struct {
 	db *sql.DB
+	tx *sql.Tx
+}
+
+func (a *apiRepository) SetTx(tx *sql.Tx) {
+	a.tx = tx
+}
+
+func (a *apiRepository) Begin(ctx context.Context) (err error) {
+	tx, err := a.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	a.tx = tx
+	return nil
+}
+
+func (a *apiRepository) Commit(ctx context.Context) (err error) {
+	defer func() {
+		a.tx = nil
+	}()
+	return a.tx.Commit()
+}
+
+func (a *apiRepository) Rollback(ctx context.Context) (err error) {
+	defer func() {
+		a.tx = nil
+	}()
+	return a.tx.Rollback()
 }
 
 func (a *apiRepository) Save(ctx context.Context, request *models.Api) (result *models.Api, err error) {
