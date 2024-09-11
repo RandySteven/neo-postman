@@ -49,3 +49,11 @@ func (r *RedisClient) ClearCache(ctx context.Context) error {
 	}
 	return nil
 }
+
+func (r *RedisClient) FlushAll(ctx context.Context) error {
+	err := r.client.FlushAll(ctx).Err()
+	if err != nil {
+		return fmt.Errorf("failed to flush cache: %w", err)
+	}
+	return nil
+}
